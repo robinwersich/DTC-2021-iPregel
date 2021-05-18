@@ -54,11 +54,16 @@ def get_authors_papers_dict(metadata_dir: str) -> dict[str, int]:
         author_str = re.search(r"Authors?:\s*(.*(?:\n\s+.*)*)", file_contents).group(1).replace('\n', '')
         # first remove parenthesized info which might contain annoying commas
         author_str = remove_parentheses(author_str)
-        # authors are separated by ", " or "and" or both with variable additional whitespace
-        authors = re.split(r"\s*(?:,\s+and |,| and )\s*", author_str)
+        # after numbers (mostly page count) there are no authors anymore, remove
+        author_str = re.sub(r"\d.*$", "", author_str)
+        # authors are separated by "," or "and" or both
+        authors = re.split(r",\s+and |,| and ", author_str)
         for author in authors:
             author = author.strip()
-            if author == "": continue
+
+            if author == "":
+                # meta info that has been removed, no more authors coming
+                break;
             authors_papers_dict[author].append(paper_id)
 
     return authors_papers_dict
