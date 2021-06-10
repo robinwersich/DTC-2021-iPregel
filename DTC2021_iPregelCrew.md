@@ -4,8 +4,6 @@
 
 ## Task
 
-![image-20210429141701472](/Users/tam/Library/Application Support/typora-user-images/image-20210429141701472.png)
-
 - What exactly does graph preprocessing mean?
 - Why is iPregel interesting to Katharina 
 
