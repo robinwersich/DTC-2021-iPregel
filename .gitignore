@@ -1,4 +1,5 @@
 .idea/
+.DS_Store
 bin
 html
 latex
@@ -8,4 +9,7 @@ output
 gmon.out
 out.txt
 .s2ipconfig
+
+# graph data
+analyses/*/data
 
