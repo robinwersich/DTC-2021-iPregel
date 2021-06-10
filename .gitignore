@@ -10,3 +10,5 @@ gmon.out
 out.txt
 .s2ipconfig
 
+# graph data
+analyses/*/data
