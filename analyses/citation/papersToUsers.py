@@ -15,19 +15,13 @@ def main():
         return
     
     authors_papers_dict = get_authors_papers_dict(sys.argv[2])
-    authors = list(authors_papers_dict.keys())
-    author_ids = {author: id for id, author in enumerate(authors)}
-    papers_author_ids = authors_papers_to_papers_author_ids(authors_papers_dict, author_ids)
 
     input_graph = open(sys.argv[1], 'r')
     output_graph = open(sys.argv[3] if len(sys.argv) > 3 else "cit_authors.txt", 'w')
-    convert_graph(input_graph, output_graph, papers_author_ids, len(authors))
-    output_graph.close()
-    input_graph.close()
-
     output_metadata = open(sys.argv[4] if len(sys.argv) > 4 else "author_ids.txt", 'w')
-    for id in range(len(authors)):
-        print(f"{id}:\t{authors[id]}", file=output_metadata)
+    write_graph_and_metadata(input_graph, output_graph, output_metadata, authors_papers_dict)
+    input_graph.close()
+    output_graph.close()
     output_metadata.close()
 
 def input_valid() -> bool:
@@ -48,28 +42,51 @@ def input_valid() -> bool:
         print(f"usage: {sys.argv[0]} <graph> <metadata-dir> [<output-graph> [<output-metadata>]")
     return valid
 
-def convert_graph(infile, outfile, papers_author_ids: dict[int, list[int]], num_authors: int) -> list[set[int]]:
+def write_graph_and_metadata(
+    in_graph, out_graph, out_meta,
+    authors_papers_dict: dict[str, list[int]]
+) -> list[set[int]]:
     """creates a graph in the form of adjacency lists"""
 
-    graph = [set() for i in range(num_authors)]
-    for line in infile:
+    authors = list(authors_papers_dict.keys())
+    papers_author_ids = authors_papers_to_papers_author_ids(authors_papers_dict)
+
+    graph = [set() for i in range(len(authors))]
+    paper_cite_counts = defaultdict(int)
+
+    for line in in_graph:
+        # ignore comments
         if line.startswith("#"):
             continue
         from_paper, to_paper = re.split(r"\s+", line)[:2]
+        # track paper cite count to calculate h-index later
+        paper_cite_counts[int(to_paper)] += 1
+        # if paper A cites paper B, every author of A cites every author of B
         for from_author in papers_author_ids[int(from_paper)]:
             for to_author in papers_author_ids[int(to_paper)]:
                 graph[from_author].add(to_author)
     
-    for from_author in range(num_authors):
+    # write edge list to file
+    for from_author in range(len(authors)):
         for to_author in graph[from_author]:
-            print(f"{from_author}\t{to_author}", file=outfile)
+            print(f"{from_author}\t{to_author}", file=out_graph)
 
-def authors_papers_to_papers_author_ids(
-    authors_papers_dict: dict[str, list[int]],
-    author_ids: dict[str, int]
-) -> dict[int, list[int]]:
+    # write metadata (author names and h-index) to file
+    print("ID\tname\th-index", file=out_meta)
+    print("=========================", file=out_meta)
+    for id, author in enumerate(authors):
+        # algorithm: sort paper counts decreasing, find sidelength of largest square under plotted curve
+        paper_citations = sorted([paper_cite_counts[paper] for paper in authors_papers_dict[author]], reverse=True)
+        h_index = 0
+        while h_index < len(paper_citations) and paper_citations[h_index] >= h_index + 1:
+            h_index += 1
+            
+        print(f"{id}:\t{author}\t{h_index}", file=out_meta)
+
+def authors_papers_to_papers_author_ids(authors_papers_dict: dict[str, list[int]]) -> dict[int, list[int]]:
     """creates a dict mapping paper ids to author ids"""
 
+    author_ids = {author: id for id, author in enumerate(authors_papers_dict.keys())}
     papers_author_ids = defaultdict(list)
     for author in authors_papers_dict.keys():
         for paper in authors_papers_dict[author]:
