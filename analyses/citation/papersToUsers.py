@@ -14,7 +14,7 @@ def main():
     if not input_valid():
         return
     
-    authors_papers_dict = get_authors_papers_dict(sys.argv[1])
+    authors_papers_dict = merge_names(get_authors_papers_dict(sys.argv[1]))
 
     print(f"{len(authors_papers_dict)} authors in total\n")
     for author, papers in sorted(authors_papers_dict.items()):
@@ -37,7 +37,9 @@ def remove_parentheses(s: str) -> str:
 
     return new_string
 
-def get_authors_papers_dict(metadata_dir: str) -> dict[str, int]:
+def get_authors_papers_dict(metadata_dir: str) -> dict[str, list[int]]:
+    """creates a dict mapping author names to a list of paper IDs"""
+
     authors_papers_dict = defaultdict(list)
 
     for entry in os.scandir(metadata_dir):
@@ -56,6 +58,10 @@ def get_authors_papers_dict(metadata_dir: str) -> dict[str, int]:
         author_str = remove_parentheses(author_str)
         # after numbers (mostly page count) there are no authors anymore, remove
         author_str = re.sub(r"\d.*$", "", author_str)
+        # ignore weird special characters that appear in some names
+        author_str = re.sub(r"[\\'`{}\"~]", "", author_str)
+        # sometimes a "Jr." suffix is separated by a comma, which messes up our splitting later
+        author_str = re.sub(r",\s*(?=jr)", " ", author_str, 0, re.IGNORECASE)
         # authors are separated by "," or "and" or both
         authors = re.split(r",\s+and |,| and ", author_str)
         for author in authors:
@@ -63,11 +69,53 @@ def get_authors_papers_dict(metadata_dir: str) -> dict[str, int]:
 
             if author == "":
                 # meta info that has been removed, no more authors coming
-                break;
+                break
+            
+            # somtimes there is a dot at the end, remove
+            author = re.sub(r"\s*\.$", "", author)
             authors_papers_dict[author].append(paper_id)
 
     return authors_papers_dict
 
+def get_names(author: str) -> tuple[str, list[str]]:
+    """splits an author name into a tuple <lastname, firstnames[]>"""
+
+    # for simplicity, split at dots aswell as dashes (and spaces of course)
+    author_names = re.split(r"(?:\.|-)+\s*|(?:\.|-)*\s+", author)
+    last_name = author_names.pop()
+    # normally the last element is the last name, except for the "Jr." Suffix
+    if (last_name.lower() == "jr"):
+        last_name = author_names.pop()
+        author_names.append("Jr.")
+    
+    return (last_name, author_names)
+
+def normalize_names(authors_papers_dict: dict[str, list[int]]) -> dict[str, list[int]]:
+    normalized_dict = defaultdict(list)
+    for name in authors_papers_dict.keys():
+        last_name, first_names = get_names(name)
+        normalized_name = f"{last_name}, {' '.join(first_names)}"
+
+        normalized_dict[normalized_name].extend(authors_papers_dict[name])
+    
+    return normalized_dict
+
+
+
+def merge_names(authors_papers_dict: dict[str, list[int]]) -> dict[str, list[int]]:
+    merged_dict = defaultdict(list)
+
+    for name in authors_papers_dict.keys():
+        last_name, first_names = get_names(name)
+
+        # We assume every person to be uniquely identifiable by their last name
+        # and first letter of the first name. This is not strictly but mostly true
+        # and sufficient for our analysis
+
+        short_name = f"{first_names[0][0].upper()}. {last_name}" if len(first_names) > 0 else last_name
+        merged_dict[short_name].extend(authors_papers_dict[name])
+    
+    return merged_dict
 
 def input_valid() -> bool:
     if len(sys.argv) <= 1:
