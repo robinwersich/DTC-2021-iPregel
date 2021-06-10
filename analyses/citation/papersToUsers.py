@@ -14,11 +14,68 @@ def main():
     if not input_valid():
         return
     
-    authors_papers_dict = merge_names(get_authors_papers_dict(sys.argv[1]))
+    authors_papers_dict = get_authors_papers_dict(sys.argv[2])
+    authors = list(authors_papers_dict.keys())
+    author_ids = {author: id for id, author in enumerate(authors)}
+    papers_author_ids = authors_papers_to_papers_author_ids(authors_papers_dict, author_ids)
 
-    print(f"{len(authors_papers_dict)} authors in total\n")
-    for author, papers in sorted(authors_papers_dict.items()):
-        print(f"{author}: {papers}")
+    input_graph = open(sys.argv[1], 'r')
+    output_graph = open(sys.argv[3] if len(sys.argv) > 3 else "cit_authors.txt", 'w')
+    convert_graph(input_graph, output_graph, papers_author_ids, len(authors))
+    output_graph.close()
+    input_graph.close()
+
+    output_metadata = open(sys.argv[4] if len(sys.argv) > 4 else "author_ids.txt", 'w')
+    for id in range(len(authors)):
+        print(f"{id}:\t{authors[id]}", file=output_metadata)
+    output_metadata.close()
+
+def input_valid() -> bool:
+    """checks if the correct parameters were given and prints error message if not"""
+
+    valid = True
+    if len(sys.argv) <= 2:
+        valid = False
+    else:
+        if not path.exists(sys.argv[1]):
+            print(f"The given graph file '{sys.argv[1]}' doesn't exist.")
+            valid = False
+        if not path.exists(sys.argv[2]):
+            print(f"The given metadata directory '{sys.argv[2]}' doesn't exist.")
+            valid = False
+
+    if not valid:
+        print(f"usage: {sys.argv[0]} <graph> <metadata-dir> [<output-graph> [<output-metadata>]")
+    return valid
+
+def convert_graph(infile, outfile, papers_author_ids: dict[int, list[int]], num_authors: int) -> list[set[int]]:
+    """creates a graph in the form of adjacency lists"""
+
+    graph = [set() for i in range(num_authors)]
+    for line in infile:
+        if line.startswith("#"):
+            continue
+        from_paper, to_paper = re.split(r"\s+", line)[:2]
+        for from_author in papers_author_ids[int(from_paper)]:
+            for to_author in papers_author_ids[int(to_paper)]:
+                graph[from_author].add(to_author)
+    
+    for from_author in range(num_authors):
+        for to_author in graph[from_author]:
+            print(f"{from_author}\t{to_author}", file=outfile)
+
+def authors_papers_to_papers_author_ids(
+    authors_papers_dict: dict[str, list[int]],
+    author_ids: dict[str, int]
+) -> dict[int, list[int]]:
+    """creates a dict mapping paper ids to author ids"""
+
+    papers_author_ids = defaultdict(list)
+    for author in authors_papers_dict.keys():
+        for paper in authors_papers_dict[author]:
+            papers_author_ids[paper].append(author_ids[author])
+    
+    return papers_author_ids
 
 def remove_parentheses(s: str) -> str:
     """removes every parenthesized expression from the string"""
@@ -73,6 +130,10 @@ def get_authors_papers_dict(metadata_dir: str) -> dict[str, list[int]]:
             
             # somtimes there is a dot at the end, remove
             author = re.sub(r"\s*\.$", "", author)
+            # the names for the same author are not consistent (e.g. different abbreviations)
+            # so we try to merge them
+            author = normalize_name(author)
+
             authors_papers_dict[author].append(paper_id)
 
     return authors_papers_dict
@@ -90,42 +151,19 @@ def get_names(author: str) -> tuple[str, list[str]]:
     
     return (last_name, author_names)
 
-def normalize_names(authors_papers_dict: dict[str, list[int]]) -> dict[str, list[int]]:
-    normalized_dict = defaultdict(list)
-    for name in authors_papers_dict.keys():
-        last_name, first_names = get_names(name)
-        normalized_name = f"{last_name}, {' '.join(first_names)}"
+def normalize_name(author: str) -> str:
+    """
+    This converts an author name to a uniform format in order to merge inconsistent
+    spellings of the same name
+    """
 
-        normalized_dict[normalized_name].extend(authors_papers_dict[name])
-    
-    return normalized_dict
+    last_name, first_names = get_names(author)
 
+    # We assume every person to be uniquely identifiable by their last name
+    # and first letter of the first name. This is not strictly but mostly true
+    # and sufficient for our analysis
+    return f"{first_names[0][0].upper()}. {last_name}" if len(first_names) > 0 else last_name
 
-
-def merge_names(authors_papers_dict: dict[str, list[int]]) -> dict[str, list[int]]:
-    merged_dict = defaultdict(list)
-
-    for name in authors_papers_dict.keys():
-        last_name, first_names = get_names(name)
-
-        # We assume every person to be uniquely identifiable by their last name
-        # and first letter of the first name. This is not strictly but mostly true
-        # and sufficient for our analysis
-
-        short_name = f"{first_names[0][0].upper()}. {last_name}" if len(first_names) > 0 else last_name
-        merged_dict[short_name].extend(authors_papers_dict[name])
-    
-    return merged_dict
-
-def input_valid() -> bool:
-    if len(sys.argv) <= 1:
-        print("You need to provide a directory path.")
-    elif not path.exists(sys.argv[1]):
-        print("The given directory doesn't exist.")
-    else:
-        return True
-    return False
-    
 
 if __name__ == "__main__":
     main()
