@@ -5,7 +5,7 @@ The [Higgs Twitter Data Set](https://snap.stanford.edu/data/higgs-twitter.html) 
 
 We choose to include all possible user interactions into our analyses and treat them equally. If a user i retweeted a post from user j, replied to a post of user j or mentioned user j, the graph contains a directed edge from i to j. If a user outside of the dataset interacted with a user within the data set, the graph does not conatin any information about this.
 
-The graph contains collected messages posted in Twitter about this discovery between the 1st and 7th of July 2012.
+The graph contains collected messages posted in Twitter about this discovery between the 1st and 7th of July 2012. 
 
 Users are identified by anonimized User IDs.
 
@@ -38,12 +38,11 @@ userA userB timestamp interaction
 
 
 ### Follower Count
-- We downloaded the [social_network.edgelist](https://snap.stanford.edu/data/higgs-social_network.edgelist.gz) data set which provides us with the following format: 
+- We downloaded the [social_network.edgelist](https://snap.stanford.edu/data/higgs-social_network.edgelist.gz) data set which provides us with the following format where userA follows userB: 
 
 ```
 userA userB 
 ```
-where userA follows userB.
 
 - We use [networkit](https://networkit.github.io) to compute the InDegreeCentrality for each node which in our setup equals the number of followers a node has. 
 
@@ -54,8 +53,7 @@ where userA follows userB.
 ### User interaction network
 - According to the official [SNAP Page for the Dataset](https://snap.stanford.edu/data/higgs-twitter.html) there are 456 626 users involved in the interactions / nodes in the graph. Our converted interaction graph however only has 456 623 nodes. When analyzing our interaction graph we found that node 1 and nodes 456 623, 456 624, 456 624, 456 626 seem to not have actually interacted with other users. This also doesn't up, because we would in this case expect 456 626 - 5 = 456 621 participating nodes.
 
-Additionally, when suming up the interactions in networks split up in regards to interaction type, so the Retweeting, Repling and Mentioning Networks, we don't arrive at the edge count of our interaction network. 
-
+- Additionally, when suming up the interactions in networks split up in regards to interaction type, so the Retweeting, Repling and Mentioning Networks, we don't arrive at the edge count of our interaction network. 
 328132 (Retweet) + 32523 (Reply) + 150818 (Mention) = 511 473 ≠ 563068 edges in the interaction network.
 
 
