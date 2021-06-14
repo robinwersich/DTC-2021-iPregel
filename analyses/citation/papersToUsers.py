@@ -62,9 +62,11 @@ def write_graph_and_metadata(
         # track paper cite count to calculate h-index later
         paper_cite_counts[int(to_paper)] += 1
         # if paper A cites paper B, every author of A cites every author of B
+        # but we remove self references
         for from_author in papers_author_ids[int(from_paper)]:
             for to_author in papers_author_ids[int(to_paper)]:
-                graph[from_author].add(to_author)
+                if from_author != to_author:
+                    graph[from_author].add(to_author)
     
     # write edge list to file
     for from_author in range(len(authors)):
