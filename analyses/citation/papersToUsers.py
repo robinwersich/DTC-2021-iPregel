@@ -39,7 +39,7 @@ def input_valid() -> bool:
             valid = False
 
     if not valid:
-        print(f"usage: {sys.argv[0]} <graph> <metadata-dir> [<output-graph> [<output-metadata>]")
+        print(f"usage: {sys.argv[0]} <graph> <metadata-dir> [<output-graph>] [<output-metadata>]")
     return valid
 
 def write_graph_and_metadata(
@@ -58,7 +58,7 @@ def write_graph_and_metadata(
         # ignore comments
         if line.startswith("#"):
             continue
-        from_paper, to_paper = re.split(r"\s+", line)[:2]
+        from_paper, to_paper = re.split(r"[\t ]+", line)[:2]
         # track paper cite count to calculate h-index later
         paper_cite_counts[int(to_paper)] += 1
         # if paper A cites paper B, every author of A cites every author of B
