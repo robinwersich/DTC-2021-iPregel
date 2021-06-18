@@ -2,8 +2,8 @@ import networkit as nk
 import pandas as pd
 
 input_file = './data/higgs-social_network.edgelist'
-output_file = './data/follower_count_higgs_network.txt'
-sorted_output_file = './data/sorted_follower_count_higgs_network.txt'
+output_file = './analysis_data/follower_count_higgs_network.txt'
+sorted_output_file = './analysis_data/sorted_follower_count_higgs_network.txt'
 
 G = nk.readGraph(input_file, nk.Format.EdgeList, separator=" ", firstNode=1, directed=True)
 
