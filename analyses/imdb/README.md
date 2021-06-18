@@ -25,7 +25,11 @@ To convert the network from `WebGraph` to `SNAP` format we used [Web2Snap](https
 ### Analysis data
 
 - We've prepared the id look-up file to be able to match actor ids of our graph with names and the Academy Award Nominee List from Wikipedia.
-- Both can be downloaded via:
-`python download_analysis_data.py`. 
+- Both can be downloaded and preprocessed via:
+```bash
+python download_analysis_data.py
+```
 - The python script requires at least python modules `wikipedia` and `lxml` which can be installed via:
-`pip install wikipedia lxml`.
+```bash
+pip install wikipedia lxml
+```
