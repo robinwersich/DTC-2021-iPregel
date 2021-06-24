@@ -1,5 +1,7 @@
 #!/bin/sh
 
+BASEDIR=$(dirname "$0")
+
 # help text
 if [ $1 = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "" ]; then
     echo "This script converts SNAP graphs to a format recognizable by iPregel."
@@ -35,26 +37,34 @@ if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
         read adj2bin
     fi
 
+    # convert to absolute path
+    snap2adj="$(cd "$(dirname "$snap2adj")"; pwd)/$(basename "$snap2adj")"
+    adj2bin="$(cd "$(dirname "$adj2bin")"; pwd)/$(basename "$adj2bin")"
+
     # check executable paths validity
     if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; exit; fi
     if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; exit; fi
 
     # write paths to config file
-    echo "snap2adj='$snap2adj'" > ".s2ipconfig"
-    echo "adj2bin='$adj2bin'" >> ".s2ipconfig"
+    echo "snap2adj='$snap2adj'" > "$BASEDIR/.s2ipconfig"
+    echo "adj2bin='$adj2bin'" >> "$BASEDIR/.s2ipconfig"
     exit
 fi
 
-if [ ! -f ".s2ipconfig" ]; then
+if [ ! -f "$BASEDIR/.s2ipconfig" ]; then
     echo "Please first configure the location of the ligra converters used by this script:"
     echo "$0 --config <SNAPtoAdj executable> <adjToBinary executable>"
     exit
 else
-    source ./.s2ipconfig
+    source "$BASEDIR/.s2ipconfig"
+
+    # check executable paths validity
+    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit; fi
+    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit; fi
 fi
 
 if [ $# -ne 1 ]; then
-    echo "Too many arguments. Expected either a single input file (refer to --help)."
+    echo "Too many arguments. Expected a single input file (refer to --help)."
     exit
 fi
 
@@ -62,8 +72,8 @@ if [ -f "$1" ]; then
     graphName="${1%.txt}"
 
     # converting to Ligra binary format
-    $snap2adj $1 "$graphName.tmp"
-    $adj2bin "$graphName.tmp" "$graphName.idx" "$graphName.adj" "$graphName.config"
+    "$snap2adj" "$1" "$graphName.tmp"
+    "$adj2bin" "$graphName.tmp" "$graphName.idx" "$graphName.adj" "$graphName.config"
 
     # converting to iPregel binary format (adding edge count)
     edges=$(sed -n 3p "$graphName.tmp")
