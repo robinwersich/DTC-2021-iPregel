@@ -23,7 +23,7 @@ if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
     # check input validity
     if [ $# -ne 1 ] && [ $# -ne 3 ]; then
         echo "The config option has to be used either with both executable paths or none (interactive mode)."
-        exit
+        exit 1
     fi
 
     # read executable paths
@@ -54,7 +54,7 @@ fi
 if [ ! -f "$BASEDIR/.s2ipconfig" ]; then
     echo "Please first configure the location of the ligra converters used by this script:"
     echo "$0 --config <SNAPtoAdj executable> <adjToBinary executable>"
-    exit
+    exit 1
 else
     source "$BASEDIR/.s2ipconfig"
 
@@ -65,7 +65,7 @@ fi
 
 if [ $# -ne 1 ]; then
     echo "Too many arguments. Expected a single input file (refer to --help)."
-    exit
+    exit 1
 fi
 
 if [ -f "$1" ]; then
