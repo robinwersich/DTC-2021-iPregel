@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR=$(dirname "$0")
 
 # help text
-if [ $1 = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "" ]; then
+if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "" ]; then
     echo "This script converts SNAP graphs to a format recognizable by iPregel."
     echo "It uses the converters from the ligra project to do so, thus you will have to install them from"
     echo "https://github.com/jshun/ligra"
