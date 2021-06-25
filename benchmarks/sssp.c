@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <float.h>
 #include <inttypes.h>
+#include <string.h>
 
 /*
  * Line commented so that the vertex ID can be set to 4B or 8B ints at compile
@@ -85,20 +86,28 @@ void ip_serialise_vertex(FILE* f, struct ip_vertex_t* v)
 
 int main(int argc, char* argv[])
 {
-	if(argc != 7) 
+	if(argc != 8) 
 	{
-		printf("Incorrect number of parameters, expecting: %s <inputFile> <outputFile> <number_of_threads> <schedule> <chunk_size> <SSSP_source_vertex>.\n", argv[0]);
+		printf("Incorrect number of parameters, expecting: %s <inputFile> <outputFile> <number_of_threads> <schedule> <chunk_size> <SSSP_source_vertex> <directed>.\n", argv[0]);
 		return -1;
 	}
 
-	printf("ApplicationConfiguration:startVertex=%u\n", atoi(argv[4]));
+	printf("ApplicationConfiguration:startVertex=%u\n", atoi(argv[6]));
 
 	////////////////////
 	// INITILISATION //
 	//////////////////
-	bool directed = false;
+	bool directed;
+	if (strcmp(argv[7], "directed") == 0) {
+		directed = true;
+	} else if (strcmp(argv[7], "undirected") == 0) {
+		directed = false;
+	} else {
+		printf("7th argument must be either 'directed' or 'undirected'.");
+		return -1;
+	}
 	bool weighted = false;
-	start_vertex = atoi(argv[4]);
+	start_vertex = atoi(argv[6]);
 	ip_init(argv[1], atoi(argv[3]), argv[4], atoi(argv[5]), directed, weighted);
 
 	//////////
