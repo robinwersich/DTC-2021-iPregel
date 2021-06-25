@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # The input graph contains edges from the interacting user to the destination user.
 # We want to give highly interacting users more importance, so we reverse the edges.
 # Also, we remove the timestamps from the edges and reduce duplicate edges to a single one.

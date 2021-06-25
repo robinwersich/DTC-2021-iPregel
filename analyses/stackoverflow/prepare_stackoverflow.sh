@@ -7,4 +7,4 @@ fi
 
 # first remove timestamps and reverse edges using python
 # then eliminate duplicate edges using shell tools
-./reverse_remove_timestamp.py "$1" | sort | uniq > "$2"
+python reverse_remove_timestamp.py "$1" | sort | uniq > "$2"

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # Expected metadata format contains following line:
 # Authors: Author1, Author2, ... and Author3
 
