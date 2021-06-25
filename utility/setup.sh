@@ -11,6 +11,10 @@ LIGRA_DIR="ligra"
 # navigate to iPregel root directory
 cd "$(dirname "$0")/.."
 
+echo "Compiling iPregel binaries..."
+make &> /dev/null
+echo
+
 echo "----- installing graph converter -----"
 
 # LIGRA CONVERTER
