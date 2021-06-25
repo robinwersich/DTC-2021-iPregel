@@ -77,10 +77,13 @@ echo "----- downloading & preparing data -----"
 cd analyses
 echo "Preparing citation data..."
 citation/prepare_data.sh
+echo
 echo "Preparing twitter data..."
 twitter/prepare_data.sh
+echo
 echo "Preparing statkoverflow data..."
 stackoverflow/prepare_data.sh
+echo
 echo "Preparing imdb data..."
 imdb/prepare_data.sh
 echo
