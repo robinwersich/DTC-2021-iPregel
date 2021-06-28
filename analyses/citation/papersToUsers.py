@@ -22,7 +22,7 @@ def main():
     output_graph.close()
     output_metadata.close()
 
-def input_valid() -> bool:
+def input_valid():
     """checks if the correct parameters were given and prints error message if not"""
 
     valid = True
@@ -40,10 +40,7 @@ def input_valid() -> bool:
         print(f"usage: {sys.argv[0]} <graph> <metadata-dir> [<output-graph>] [<output-metadata>]")
     return valid
 
-def write_graph_and_metadata(
-    in_graph, out_graph, out_meta,
-    authors_papers_dict: dict[str, list[int]]
-) -> list[set[int]]:
+def write_graph_and_metadata(in_graph, out_graph, out_meta, authors_papers_dict):
     """creates a graph in the form of adjacency lists"""
 
     authors = list(authors_papers_dict.keys())
@@ -83,7 +80,7 @@ def write_graph_and_metadata(
             
         print(f"{id}:\t{author}\t{h_index}", file=out_meta)
 
-def authors_papers_to_papers_author_ids(authors_papers_dict: dict[str, list[int]]) -> dict[int, list[int]]:
+def authors_papers_to_papers_author_ids(authors_papers_dict):
     """creates a dict mapping paper ids to author ids"""
 
     author_ids = {author: id for id, author in enumerate(authors_papers_dict.keys())}
@@ -94,7 +91,7 @@ def authors_papers_to_papers_author_ids(authors_papers_dict: dict[str, list[int]
     
     return papers_author_ids
 
-def remove_parentheses(s: str) -> str:
+def remove_parentheses(s):
     """removes every parenthesized expression from the string"""
 
     new_string = ""
@@ -111,7 +108,7 @@ def remove_parentheses(s: str) -> str:
 
     return new_string
 
-def get_authors_papers_dict(metadata_dir: str) -> dict[str, list[int]]:
+def get_authors_papers_dict(metadata_dir):
     """creates a dict mapping author names to a list of paper IDs"""
 
     authors_papers_dict = defaultdict(list)
@@ -155,7 +152,7 @@ def get_authors_papers_dict(metadata_dir: str) -> dict[str, list[int]]:
 
     return authors_papers_dict
 
-def get_names(author: str) -> tuple[str, list[str]]:
+def get_names(author):
     """splits an author name into a tuple <lastname, firstnames[]>"""
 
     # for simplicity, split at dots aswell as dashes (and spaces of course)
@@ -168,7 +165,7 @@ def get_names(author: str) -> tuple[str, list[str]]:
     
     return (last_name, author_names)
 
-def normalize_name(author: str) -> str:
+def normalize_name(author):
     """
     This converts an author name to a uniform format in order to merge inconsistent
     spellings of the same name

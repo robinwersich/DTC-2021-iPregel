@@ -63,7 +63,7 @@ else
         trap "echo && exit 1" SIGINT
 
         echo "Creating virtual python environment in $(pwd)"
-        python3.9 -m venv .venv
+        python3 -m venv .venv
         source .venv/bin/activate
         echo "Installing python dependencies..."
         pip install --upgrade pip 1> /dev/null
