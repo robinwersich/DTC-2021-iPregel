@@ -27,6 +27,7 @@ if [ -d "$LIGRA_DIR" ]; then
 else
     ( # execute in subshell to catch errors and clean up afterwards
         set -e
+        trap "echo && exit 1" SIGINT
 
         echo -n "install ligra to '$(pwd)'? (y/n): "
         read ANSWER
@@ -59,6 +60,7 @@ if [ -d ".venv" ]; then
 else
     (
         set -e
+        trap "echo && exit 1" SIGINT
 
         echo "Creating virtual python environment in $(pwd)"
         python3.9 -m venv .venv
