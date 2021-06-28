@@ -7,6 +7,9 @@
 # constants
 IPREGEL_DIR="iPregel"
 LIGRA_DIR="ligra"
+ORIGINAL_DIR="data_original"
+PREPARED_DIR="data_prepared"
+RESULT_DIR="results"
 
 # navigate to iPregel root directory
 cd "$(dirname "$0")/.."
@@ -91,7 +94,3 @@ echo
 echo "Preparing imdb data..."
 imdb/prepare_data.sh
 echo
-
-# SUCCESS
-echo
-echo "Success!"
