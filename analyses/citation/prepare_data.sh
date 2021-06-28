@@ -12,7 +12,7 @@ else
     else
         ( # execute in subshell to catch errors and clean up afterwards
             set -e
-            trap "echo '\n' && exit 1" SIGINT
+            trap "echo && exit 1" SIGINT
 
             mkdir "data_original" && cd "data_original"
             echo "Downloading..."
@@ -35,7 +35,7 @@ else
     # prepare data
     (
         set -e
-        trap "echo '\n' && exit 1" SIGINT
+        trap "echo && exit 1" SIGINT
 
         echo "Converting paper graph to author graph..."
         # no error if results dir already exists
