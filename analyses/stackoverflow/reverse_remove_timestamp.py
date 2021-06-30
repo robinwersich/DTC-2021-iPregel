@@ -20,7 +20,7 @@ def main():
             if (interacting_user != target_user):
                 print(f"{target_user}\t{interacting_user}")
 
-def input_valid() -> bool:
+def input_valid():
     """checks if the correct parameters were given and prints error message if not"""
 
     valid = True

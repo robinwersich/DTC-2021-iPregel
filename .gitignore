@@ -10,6 +10,8 @@ output
 gmon.out
 out.txt
 .s2ipconfig
+
 .venv
-analyses/*/data
-analyses/*/analysis_data
+analyses/*/data_original
+analyses/*/data_prepared
+analyses/*/results

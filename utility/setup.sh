@@ -7,6 +7,9 @@
 # constants
 IPREGEL_DIR="iPregel"
 LIGRA_DIR="ligra"
+ORIGINAL_DIR="data_original"
+PREPARED_DIR="data_prepared"
+RESULT_DIR="results"
 
 # navigate to iPregel root directory
 cd "$(dirname "$0")/.."
@@ -24,6 +27,7 @@ if [ -d "$LIGRA_DIR" ]; then
 else
     ( # execute in subshell to catch errors and clean up afterwards
         set -e
+        trap "echo && exit 1" SIGINT
 
         echo -n "install ligra to '$(pwd)'? (y/n): "
         read ANSWER
@@ -56,9 +60,10 @@ if [ -d ".venv" ]; then
 else
     (
         set -e
+        trap "echo && exit 1" SIGINT
 
         echo "Creating virtual python environment in $(pwd)"
-        python3.9 -m venv .venv
+        python3 -m venv .venv
         source .venv/bin/activate
         echo "Installing python dependencies..."
         pip install --upgrade pip 1> /dev/null
@@ -92,7 +97,3 @@ echo
 echo "Preparing imdb data..."
 imdb/prepare_data.sh
 echo
-
-# SUCCESS
-echo
-echo "Success!"
