@@ -15,7 +15,7 @@ echo "Compiling iPregel binaries..."
 make &> /dev/null
 echo
 
-echo "----- installing graph converter -----"
+echo "----- Installing graph converter -----"
 
 # LIGRA CONVERTER
 cd ..
@@ -64,6 +64,7 @@ else
         pip install --upgrade pip 1> /dev/null
         pip install -r requirements.txt 1> /dev/null
         echo "Installing networkit..."
+        echo "This might take a while, grab a cup of coffee or tea and enjoy. :)"
         pip install cmake cython 1> /dev/null
         pip install networkit 1> /dev/null
     )
@@ -85,7 +86,7 @@ echo
 echo "Preparing twitter data..."
 twitter/prepare_data.sh
 echo
-echo "Preparing statkoverflow data..."
+echo "Preparing stackoverflow data..."
 stackoverflow/prepare_data.sh
 echo
 echo "Preparing imdb data..."

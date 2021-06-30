@@ -26,7 +26,7 @@ fi
     rm -r metadata
 )
 if [ $? -ne 0 ]; then
-    echo "Data preparation failled. Exiting."
+    echo "Data preparation failed. Exiting."
     rm -rf "data"
     exit 1
 fi
