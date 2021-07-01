@@ -26,7 +26,7 @@ else
             cd ".."
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failled. Exiting."
+            echo "Data download failed. Exiting."
             rm -rf "data_original"
             exit 1
         fi
@@ -43,7 +43,7 @@ else
         python papersToUsers.py "data_original/paper-citation.txt" "data_original/metadata" "data_prepared/author-citation.txt" "results/author-metadata.txt"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failled. Exiting."
+        echo "Data preparation failed. Exiting."
         rm -rf "data_prepared"
         rm -f "results/author-metadata.txt"
         exit 1

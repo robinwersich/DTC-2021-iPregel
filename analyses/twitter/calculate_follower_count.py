@@ -1,11 +1,17 @@
+import sys
+import os
 import networkit as nk
 import pandas as pd
 
-input_file = './data/higgs-social_network.edgelist'
-output_file = './analysis_data/follower_count_higgs_network.txt'
-sorted_output_file = './analysis_data/sorted_follower_count_higgs_network.txt'
+if len(sys.argv) <= 1 or not os.path.exists(sys.argv[1]):
+    print(f"usage: {sys.argv[0]} <relative_path_to_social_network_edgelist> --<output_path_to_follower_counts> --<output_path_to_sorted_follower_counts>")
+    sys.exit(1)
 
-G = nk.readGraph(input_file, nk.Format.EdgeList, separator=" ", firstNode=1, directed=True)
+input_file_path = sys.argv[1]
+output_file_path = sys.argv[2] if len(sys.argv) > 2 else 'follower_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
+sorted_output_file_path = sys.argv[3] if len(sys.argv) > 3 else 'sorted_follower_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
+
+G = nk.readGraph(input_file_path, nk.Format.EdgeList, separator=" ", firstNode=1, directed=True)
 
 print(nk.overview(G), '\n')
 
@@ -18,12 +24,12 @@ df = pd.DataFrame(follower_counts, columns=['Follower Count'])
 # NodeIDs are 1-indexed
 df.index += 1
 
-df.to_csv(output_file, header=None, sep=' ', mode='w', float_format='%.f')
-print('Wrote follower counts to {} \n'.format(output_file))
+df.to_csv(output_file_path, header=None, sep=' ', mode='w', float_format='%.f')
+print('Wrote follower counts to {} \n'.format(output_file_path))
 
 sorted_df = df.sort_values(by='Follower Count', ascending=False)
 
-sorted_df.to_csv(sorted_output_file, header=None, sep=' ', mode='w', float_format='%.f')
-print('Wrote sorted follower counts to {} \n'.format(sorted_output_file))
+sorted_df.to_csv(sorted_output_file_path, header=None, sep=' ', mode='w', float_format='%.f')
+print('Wrote sorted follower counts to {} \n'.format(sorted_output_file_path))
 
 
