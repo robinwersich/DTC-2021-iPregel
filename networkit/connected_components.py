@@ -1,6 +1,7 @@
 import networkit as nk
 import sys
 import argparse
+import timeit
 
 parser = argparse.ArgumentParser()
 
@@ -21,14 +22,15 @@ args = parser.parse_args()
 
 nk.setNumberOfThreads(args.numThreads)
 
+load_start = timeit.default_timer()
+
 try:
     G = nk.graphio.EdgeListReader(separator=args.seperator, firstNode=args.firstnode, directed=args.directed).read(args.input)
 except:
-    print("Error while reading graph: ", sys.exc_info()[0])
+    print("Error while reading graph: ", sys.exc_info()[0], file=sys.stderr)
     raise
 
-print("Successfully read Graph. \n")
-print(nk.overview(G))
+calculate_start = timeit.default_timer()
 
 # Depending on directedness of graph we either calculate connected components (undirected graphs)
 # or strongly connected components (directed graphs)
@@ -39,14 +41,15 @@ else:
 
 S.run()
 
+dump_start = timeit.default_timer()
+
 with open(args.output, "w") as output_file:
     for vertex_id in range(G.numberOfNodes()):
         print(f"{vertex_id}\t{S.componentOfNode(vertex_id)}", file=output_file)
 
-component_type = "Strongly Connected Components" if args.directed else "Connected Components"
-print("Found {} {} \n".format(S.numberOfComponents(), component_type))
+dump_end = timeit.default_timer()
 
-#print_results(S.getPartition(), True)
-print("Wrote results to {}.\n".format(args.output))
-
-
+# write benchmarking times to stdout, rest to stderr, so we can separate
+print(f"Wrote results to {args.output}.\n", file=sys.stderr)
+print("loading time\tcalculating time\tdumping time", file=sys.stderr)
+print(f"{calculate_start - load_start}\t{dump_start - calculate_start}\t{dump_end - dump_start}", file=sys.stdout)

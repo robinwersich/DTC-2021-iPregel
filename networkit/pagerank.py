@@ -1,6 +1,7 @@
 import networkit as nk
 import sys
 import argparse
+import timeit
 
 UINT_32_MAX = 4294967295
 
@@ -32,22 +33,30 @@ args = parser.parse_args()
 
 nk.setNumberOfThreads(args.numThreads)
 
+load_start = timeit.default_timer()
+
 try:
     G = nk.graphio.EdgeListReader(separator="\t", firstNode=args.firstnode, directed=args.directed).read(args.input)
 except:
-    print("Error while reading graph: ", sys.exc_info()[0])
+    print("Error while reading graph: ", sys.exc_info()[0], file=sys.stderr)
     raise
 
-print("Successfully read Graph.\n")
-print(nk.overview(G))
+calculate_start = timeit.default_timer()
 
 P = nk.centrality.PageRank(G)
 P.run()
 
+dump_start = timeit.default_timer()
+
 with open(args.output, "w") as output_file:
     print_results(P.scores(), output_file, False)
 
-print("Wrote results to {}.\n".format(args.output))
+dump_end = timeit.default_timer()
 
+# write benchmarking times to stdout, rest to stderr, so we can separate
+print(f"Wrote results to {args.output}.\n", file=sys.stderr)
 if args.printNumIterations:
-    print("Number of iterations performed by the algorithm: {}".format(P.numberOfIterations()))
+    print(f"Number of iterations performed by the algorithm: {P.numberOfIterations()}", file=sys.stderr)
+print(f"Wrote results to {args.output}.\n", file=sys.stderr)
+print("loading time\tcalculating time\tdumping time", file=sys.stderr)
+print(f"{calculate_start - load_start}\t{dump_start - calculate_start}\t{dump_end - dump_start}", file=sys.stdout)
