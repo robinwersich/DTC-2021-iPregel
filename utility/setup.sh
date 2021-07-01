@@ -56,7 +56,6 @@ echo
 echo "----- installing python & networkit -----"
 if [ -d ".venv" ]; then
     echo "Virtual python environment found. Skipping install."
-    source .venv/bin/activate
 else
     (
         set -e
@@ -79,6 +78,9 @@ else
         exit 1
     fi
 fi
+
+# activate python environment in root shell of this script
+source .venv/bin/activate
 echo
 
 # PREPARING DATA
