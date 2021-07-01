@@ -39,10 +39,14 @@ else:
 
 S.run()
 
+with open(args.output, "w") as output_file:
+    for vertex_id in range(G.numberOfNodes()):
+        print(f"{vertex_id}\t{S.componentOfNode(vertex_id)}", file=output_file)
+
 component_type = "Strongly Connected Components" if args.directed else "Connected Components"
 print("Found {} {} \n".format(S.numberOfComponents(), component_type))
 
-nk.gephi.exportNodeValues(S.getPartition(), args.output, component_type)
+#print_results(S.getPartition(), True)
 print("Wrote results to {}.\n".format(args.output))
 
 

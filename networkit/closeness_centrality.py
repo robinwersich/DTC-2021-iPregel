@@ -2,6 +2,16 @@ import networkit as nk
 import sys
 import argparse
 
+UINT_32_MAX = 4294967295
+
+def print_results(results, output_file, isIntegerResult):
+    precision_factor = '.0f' if isIntegerResult else '.20f'
+    for vertex_id, result in enumerate(results, start=0):
+        # unify infinity representation with iPregel
+        if result == sys.float_info.max:
+            result = UINT_32_MAX
+        print(f"{vertex_id}\t{format(result,precision_factor)}", file=output_file)
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("input", help="(Relative Path to) graph in edgelist format (e.g. SNAP) to run algorithm on. Default seperator is tab.")
@@ -37,7 +47,9 @@ print(nk.overview(G))
 C = nk.centrality.Closeness(G, args.normalized, nk.centrality.ClosenessVariant.Generalized)
 C.run()
 
-nk.gephi.exportNodeValues(C.scores(), args.output, "Closeness Centrality")
+with open(args.output, "w") as output_file:
+    print_results(C.scores(), output_file, False)
+
 print("Wrote results to {}.\n".format(args.output))
 
 
