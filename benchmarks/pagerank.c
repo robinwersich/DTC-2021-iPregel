@@ -72,7 +72,7 @@ void ip_combine(IP_MESSAGE_TYPE* a, IP_MESSAGE_TYPE b)
 
 void ip_serialise_vertex(FILE* f, struct ip_vertex_t* v)
 {
-	fprintf(f, "%lu: %0.20f\n", v->id, v->value);
+	fprintf(f, "%lu\t%0.20f\n", v->id, v->value);
 }
 
 int main(int argc, char* argv[])
