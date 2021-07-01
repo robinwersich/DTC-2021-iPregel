@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 {
 	if(argc != 6) 
 	{
-		printf("Incorrect number of parameters, expecting: %s <inputFile> <outputFile> <number_of_threads> <schedule> <chunk_size>.\n", argv[0]);
+		printf("Incorrect number of parameters, expecting: %s <inputFile> <outputFile> <number_of_threads> <schedule> <chunk_size> directed|undirected.\n", argv[0]);
 		return -1;
 	}
 
@@ -80,7 +80,15 @@ int main(int argc, char* argv[])
 	////////////////////
 	// INITILISATION //
 	//////////////////
-	bool directed = false;
+	bool directed;
+	if (strcmp(argv[7], "directed") == 0) {
+		directed = true;
+	} else if (strcmp(argv[7], "undirected") == 0) {
+		directed = false;
+	} else {
+		printf("7th argument must be either 'directed' or 'undirected'.");
+		return -1;
+	}
 	bool weighted = false;
 	ip_init(argv[1], atoi(argv[3]), argv[4], atoi(argv[5]), directed, weighted);
 
