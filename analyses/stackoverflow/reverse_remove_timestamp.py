@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # The input graph contains edges from the interacting user to the destination user.
 # We want to give highly interacting users more importance, so we reverse the edges.
 # Also, we remove the timestamps from the edges and reduce duplicate edges to a single one.
@@ -22,7 +20,7 @@ def main():
             if (interacting_user != target_user):
                 print(f"{target_user}\t{interacting_user}")
 
-def input_valid() -> bool:
+def input_valid():
     """checks if the correct parameters were given and prints error message if not"""
 
     valid = True

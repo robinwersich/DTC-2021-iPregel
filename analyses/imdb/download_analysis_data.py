@@ -1,11 +1,12 @@
 import requests
+import sys
 import gzip
 from io import BytesIO
 import pandas as pd
 import wikipedia as wp
 
-id_outfile = './analysis_data/hollywood-2011-ids.txt'
-nominee_outfile = './analysis_data/academy_award_nominees.csv'
+id_outfile = sys.argv[1] if len(sys.argv) > 1 else 'hollywood-2011-ids.txt'
+nominee_outfile = sys.argv[2] if len(sys.argv) > 2 else 'academy_award_nominees.csv'
 
 
 # ID - Name Mapping 

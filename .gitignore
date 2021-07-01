@@ -11,5 +11,7 @@ gmon.out
 out.txt
 .s2ipconfig
 
-analyses/*/data
-analyses/*/analysis_data
+.venv
+analyses/*/data_original
+analyses/*/data_prepared
+analyses/*/results
