@@ -21,7 +21,7 @@ else
             cd ".."
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Exiting."
+            echo "Data download failed. Aborting."
             rm -rf "data_original"
             exit 1
         fi
@@ -53,7 +53,7 @@ else
         python download_analysis_data.py "./results/hollywood-2011-ids.txt" "./results/academy_award_nominees.csv"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Exiting."
+        echo "Data preparation failed. Aborting."
         rm -rf "data_prepared"
         rm -rf "results/hollywood-2011-ids.txt" "results/academy_award_nominees.csv"
         rm -rf "Web2Snap"

@@ -21,7 +21,7 @@ else
             gzip -d "data_original/stackoverflow-original.txt.gz"
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Exiting."
+            echo "Data download failed. Aborting."
             rm -rf "data_original"
             exit 1
         fi
@@ -39,7 +39,7 @@ else
         python reverse_remove_timestamp.py "data_original/stackoverflow-original.txt" | sort | uniq > "data_prepared/stackoverflow.txt"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Exiting."
+        echo "Data preparation failed. Aborting."
         rm -rf "data_prepared"
         exit 1
     fi
