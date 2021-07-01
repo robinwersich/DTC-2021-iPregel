@@ -3,12 +3,12 @@ import pandas as pd
 import os
 
 
-if len(sys.argv) <= 1 or not os.path.exists(sys.argv[1]):
-    print(f"usage: {sys.argv[0]} <relative_path_to_graph>")
-    sys.exit()
+if len(sys.argv) <= 2 or not os.path.exists(sys.argv[1]):
+    print(f"usage: {sys.argv[0]} <relative_path_to_graph> <relative_output_path>")
+    sys.exit(1)
 
 input_file_path = sys.argv[1]
-output_file_path = os.path.dirname(input_file_path) + '/processed_' + os.path.basename(input_file_path)
+output_file_path = sys.argv[2]
 
 df = pd.read_csv(input_file_path, delim_whitespace=True)
 

@@ -21,7 +21,7 @@ else
             gzip -d "data_original/stackoverflow-original.txt.gz"
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failled. Exiting."
+            echo "Data download failed. Exiting."
             rm -rf "data_original"
             exit 1
         fi

@@ -4,12 +4,12 @@ import networkit as nk
 import pandas as pd
 
 if len(sys.argv) <= 1 or not os.path.exists(sys.argv[1]):
-    print(f"usage: {sys.argv[0]} <relative_path_to_social_network_edgelist>")
-    sys.exit()
+    print(f"usage: {sys.argv[0]} <relative_path_to_social_network_edgelist> --<output_path_to_follower_counts> --<output_path_to_sorted_follower_counts>")
+    sys.exit(1)
 
 input_file_path = sys.argv[1]
-output_file_path = os.path.dirname(input_file_path) + '/follower_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
-sorted_output_file_path = os.path.dirname(input_file_path) + '/sorted_follower_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
+output_file_path = sys.argv[2] if len(sys.argv) > 2 else 'follower_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
+sorted_output_file_path = sys.argv[3] if len(sys.argv) > 3 else 'sorted_follower_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
 
 G = nk.readGraph(input_file_path, nk.Format.EdgeList, separator=" ", firstNode=1, directed=True)
 
