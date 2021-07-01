@@ -63,10 +63,10 @@ else
         trap "echo && exit 1" SIGINT
 
         echo "Creating virtual python environment in $(pwd)"
-        python -m venv .venv || virtualenv .venv 1> /dev/null
+        python -m venv .venv &> /dev/null || virtualenv .venv &> /dev/null
         source .venv/bin/activate
         echo "Installing python dependencies..."
-        pip install --upgrade pip 1> /dev/null
+        pip install --upgrade pip setuptools 1> /dev/null
         pip install -r requirements.txt 1> /dev/null
         echo "Installing networkit..."
         echo "This might take a while, grab a cup of coffee or tea and enjoy. :)"
