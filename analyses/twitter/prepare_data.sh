@@ -12,6 +12,7 @@ else
     else
         ( # execute in subshell to catch errors and clean up afterwards
             set -e
+            trap "echo && exit 1" SIGINT
             
             mkdir data_original && cd data_original
             echo "Downloading..."
