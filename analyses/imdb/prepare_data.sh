@@ -55,7 +55,7 @@ else
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Exiting."
         rm -rf "data_prepared"
-        rm -rf "results"
+        rm -rf "results/hollywood-2011-ids.txt" "results/academy_award_nominees.csv"
         rm -rf "Web2Snap"
         exit 1
     fi

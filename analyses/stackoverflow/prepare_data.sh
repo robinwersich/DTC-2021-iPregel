@@ -32,7 +32,8 @@ else
         set -e
         trap "echo && exit 1" SIGINT
 
-        mkdir "data_prepared"
+        # no error if results dir already exists
+        mkdir "data_prepared" "results" 2> /dev/null || true
         echo "Removing timestamps, reversing edges and removing duplicates..."
         echo "This is a huge graph, so it may take quite a while - relax."
         python reverse_remove_timestamp.py "data_original/stackoverflow-original.txt" | sort | uniq > "data_prepared/stackoverflow.txt"
