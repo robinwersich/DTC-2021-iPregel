@@ -12,6 +12,7 @@ else
     else
         ( # execute in subshell to catch errors and clean up afterwards
             set -e
+            trap "echo && exit 1" SIGINT
             
             mkdir data_original && cd data_original
             echo "Downloading..."
@@ -25,7 +26,7 @@ else
             gzip -d higgs-social_network.edgelist.gz
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Exiting."
+            echo "Data download failed. Aborting."
             rm -rf "data_original"
             exit 1
         fi
@@ -48,7 +49,7 @@ else
         python ../calculate_follower_count.py "../data_original/higgs-social_network.edgelist"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Exiting."
+        echo "Data preparation failed. Aborting."
         rm -rf "data_prepared"
         rm -rf "results"
         exit 1

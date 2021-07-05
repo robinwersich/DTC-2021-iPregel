@@ -13,7 +13,7 @@ sorted_output_file_path = sys.argv[3] if len(sys.argv) > 3 else 'sorted_follower
 
 G = nk.readGraph(input_file_path, nk.Format.EdgeList, separator=" ", firstNode=1, directed=True)
 
-print(nk.overview(G), '\n')
+# print(nk.overview(G), '\n')
 
 D = nk.centrality.DegreeCentrality(G, outDeg=False, ignoreSelfLoops=True)
 D.run()
@@ -25,11 +25,11 @@ df = pd.DataFrame(follower_counts, columns=['Follower Count'])
 df.index += 1
 
 df.to_csv(output_file_path, header=None, sep=' ', mode='w', float_format='%.f')
-print('Wrote follower counts to {} \n'.format(output_file_path))
+# print('Wrote follower counts to {} \n'.format(output_file_path))
 
 sorted_df = df.sort_values(by='Follower Count', ascending=False)
 
 sorted_df.to_csv(sorted_output_file_path, header=None, sep=' ', mode='w', float_format='%.f')
-print('Wrote sorted follower counts to {} \n'.format(sorted_output_file_path))
+# print('Wrote sorted follower counts to {} \n'.format(sorted_output_file_path))
 
 

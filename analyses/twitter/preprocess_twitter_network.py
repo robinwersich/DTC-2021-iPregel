@@ -19,7 +19,7 @@ df.drop(df.columns[2:4], axis=1, inplace=True)
 df.drop_duplicates(keep='first', inplace=True)
 
 # delete self-interactions, e.g. userA retweeted userA
-print("Number of self-interactions: {} \n".format(len(df[df.iloc[:, 0] == df.iloc[:, 1]])))
+# print("Number of self-interactions: {} \n".format(len(df[df.iloc[:, 0] == df.iloc[:, 1]])))
 df = df[df.iloc[:, 0] != df.iloc[:, 1]]
 
 df.to_csv(output_file_path, header=None, index=None, sep=' ', mode='w')
@@ -29,8 +29,8 @@ df.to_csv(output_file_path, header=None, index=None, sep=' ', mode='w')
 min_node_id = min(df.iloc[:,0].min(), df.iloc[:,1].min())
 max_node_id = max(df.iloc[:,0].max(), df.iloc[:,1].max())
 
-print("Min NodeID: {}, Max NodeID: {} \n".format(min_node_id, max_node_id))
+# print("Min NodeID: {}, Max NodeID: {} \n".format(min_node_id, max_node_id))
 
 # print result for debug purposes
-print("Resulting dataframe: \n")
-print(df)
+# print("Resulting dataframe: \n")
+# print(df)
