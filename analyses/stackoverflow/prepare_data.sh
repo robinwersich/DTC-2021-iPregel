@@ -21,7 +21,7 @@ else
             gzip -d "data_original/stackoverflow-original.txt.gz"
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Exiting."
+            echo "Data download failed. Aborting."
             rm -rf "data_original"
             exit 1
         fi
@@ -32,13 +32,14 @@ else
         set -e
         trap "echo && exit 1" SIGINT
 
-        mkdir "data_prepared"
+        # no error if results dir already exists
+        mkdir "data_prepared" "results" 2> /dev/null || true
         echo "Removing timestamps, reversing edges and removing duplicates..."
         echo "This is a huge graph, so it may take quite a while - relax."
         python reverse_remove_timestamp.py "data_original/stackoverflow-original.txt" | sort | uniq > "data_prepared/stackoverflow.txt"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Exiting."
+        echo "Data preparation failed. Aborting."
         rm -rf "data_prepared"
         exit 1
     fi

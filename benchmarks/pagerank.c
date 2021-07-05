@@ -31,7 +31,7 @@ typedef IP_MESSAGE_TYPE IP_VALUE_TYPE;
 
 double ratio;
 double initial_value;
-const unsigned int ROUND = 10;
+unsigned int ROUND;
 
 void ip_compute(struct ip_vertex_t* v)
 {
@@ -72,14 +72,14 @@ void ip_combine(IP_MESSAGE_TYPE* a, IP_MESSAGE_TYPE b)
 
 void ip_serialise_vertex(FILE* f, struct ip_vertex_t* v)
 {
-	fprintf(f, "%lu: %0.20f\n", v->id, v->value);
+	fprintf(f, "%lu\t%0.20f\n", v->id, v->value);
 }
 
 int main(int argc, char* argv[])
 {
-	if(argc != 6) 
+	if(argc != 7) 
 	{
-		printf("Incorrect number of parameters, expecting: %s <inputFile> <outputFile> <number_of_threads> <schedule> <chunk_size>.\n", argv[0]);
+		printf("Incorrect number of parameters, expecting: %s <inputFile> <outputFile> <number_of_threads> <schedule> <chunk_size> <number_of_iterations>.\n", argv[0]);
 		return -1;
 	}
 
@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
 	//////////////////
 	bool directed = true;
 	bool weighted = false;
+	ROUND = atoi(argv[6]);
 	ip_init(argv[1], atoi(argv[3]), argv[4], atoi(argv[5]), directed, weighted);
 
 	//////////

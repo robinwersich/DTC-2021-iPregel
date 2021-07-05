@@ -116,7 +116,7 @@ def get_authors_papers_dict(metadata_dir):
     for entry in os.scandir(metadata_dir):
         if not entry.is_file or not entry.path.endswith(".abs"):
             continue
-        paper_id = int(entry.name.removesuffix(".abs"))
+        paper_id = int(entry.name[:-4])
 
         file = open(entry.path, 'r')
         file_contents = file.read()
