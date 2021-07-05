@@ -22,7 +22,7 @@ fi
 if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
     # check input validity
     if [ $# -ne 1 ] && [ $# -ne 3 ]; then
-        echo "The config option has to be used either with both executable paths or none (interactive mode)."
+        echo "The config option has to be used either with both executable paths or none (interactive mode)." >&2
         exit 1
     fi
 
@@ -52,8 +52,8 @@ if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
 fi
 
 if [ ! -f "$BASEDIR/.s2ipconfig" ]; then
-    echo "Please first configure the location of the ligra converters used by this script:"
-    echo "$0 --config <SNAPtoAdj executable> <adjToBinary executable>"
+    echo "Please first configure the location of the ligra converters used by this script:" >&2
+    echo "$0 --config <SNAPtoAdj executable> <adjToBinary executable>" >&2
     exit 1
 else
     source "$BASEDIR/.s2ipconfig"
@@ -64,12 +64,20 @@ else
 fi
 
 if [ $# -ne 1 ]; then
-    echo "Too many arguments. Expected a single input file (refer to --help)."
+    echo "Too many arguments. Expected a single input file (refer to --help)." >&2
     exit 1
 fi
 
 if [ -f "$1" ]; then
     graphName="${1%.txt}"
+
+    # skip conversion if the graph was already converted
+    if [ -f "$graphName.idx" ] && [ -f "$graphName.adj" ] && [ -f "$graphName.config" ]; then
+        echo "Graph was already converted." >&2
+        # print path of exported binary graph to be passed to iPregel program
+        echo "$graphName"
+        exit
+    fi
 
     # converting to Ligra binary format
     "$snap2adj" "$1" "$graphName.tmp"
@@ -79,11 +87,11 @@ if [ -f "$1" ]; then
     edges=$(sed -n 3p "$graphName.tmp")
     echo -e "\n$edges" >> "$graphName.config"
 
-    #remove tmp files
+    # remove tmp files
     rm -f "$graphName.tmp"
 
     # print path of exported binary graph to be passed to iPregel program
     echo "$graphName"
 else
-    echo "File '$1' wasn't found."
+    echo "File '$1' wasn't found." >&2
 fi  
