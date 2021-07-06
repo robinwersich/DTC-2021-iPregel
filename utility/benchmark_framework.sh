@@ -72,7 +72,7 @@ iPregel() {
     echo "Benchmarking iPregel program $PROGRAM_NAME with graph $GRAPH_NAME..."
     # convert graph if not already done
     "$BASE_DIR/utility/Snap2iPregel.sh" "$GRAPH" &> /dev/null
-    multirun iPregelSingleRun || (echo "Benchmark failed:" && iPregelSingleRun 2>&1)
+    multirun iPregelSingleRun || echo -e "Benchmark failed:\n\e[31m$(iPregelSingleRun 2>&1)\e[0m"
     echo
 }
 
@@ -84,7 +84,7 @@ networkitSingleRun() {
 networkit() {
     parseArguments "networkit" $@
     echo "Benchmarking networkit program $PROGRAM_NAME with graph $GRAPH_NAME..."
-    multirun networkitSingleRun || (echo "Benchmark failed:" && networkitSingleRun 2>&1)
+    multirun networkitSingleRun || echo -e "Benchmark failed:\n\e[31m$(networkitSingleRun 2>&1)\e[0m"
     echo
 }
 
