@@ -1,13 +1,9 @@
 #!/bin/bash
 
-# check if mandatory variables are set
-if [ -z "$THREAD_COUNTS" ] || [ -z "$NUM_REPETITIONS" ]; then
-    echo "THREAD_COUNTS and NUM_REPETITIONS are not set!" >&2
-    exit 1
-fi
-
-# default is running the program once to load the data into RAM
-DO_PREPARE_RUN=true
+# default parameters for benchmarking
+THREAD_COUNTS="1"
+NUM_REPETITIONS="1"
+DO_PREPARE_RUN="true"
 
 # iPregel default parameters
 SCHEDULE="dynamic"
@@ -23,7 +19,7 @@ NETWORKIT_DIR="$BASE_DIR/networkit"
 # for each THREAD_COUNT sets NUM_THREADS accordingly and
 # runs the given command NUM_REPETITION times
 multirun() {
-    if [ "$DO_PREPARE_RUN" ]; then
+    if "$DO_PREPARE_RUN"; then
         echo "Unmeasured run to load data into memory..."
         # execute with max threads to be fast
         NUM_THREADS=${THREAD_COUNTS: -1}

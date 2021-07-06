@@ -1,15 +1,15 @@
 #!/bin/bash
 
+# load the benchmarkign framework and go to root directory
+source "$(dirname "$0")/benchmark_framework.sh"
+cd $BASE_DIR
+
 # set these according to your needs
 THREAD_COUNTS="1 2"
 NUM_REPETITIONS="2"
 
 # comment in if you don't want to do an extra run to load the data into RAM
 # DO_PREPARE_RUN=false
-
-# load the benchmarkign framework and go to root directory
-source "$(dirname "$0")/benchmark_framework.sh"
-cd $BASE_DIR
 
 # ----- iPregel programs -----
 iPregel cc_32 analyses/citation/data_prepared/author-citation.txt directed
