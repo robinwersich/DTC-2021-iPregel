@@ -71,8 +71,12 @@ iPregel() {
     parseArguments "iPregel" $@
     echo "Benchmarking iPregel program $PROGRAM_NAME with graph $GRAPH_NAME..."
     # convert graph if not already done
-    "$BASE_DIR/utility/Snap2iPregel.sh" "$GRAPH" &> /dev/null
-    multirun iPregelSingleRun || echo -e "Benchmark failed:\n\e[31m$(iPregelSingleRun 2>&1)\e[0m"
+    CONVERSION_ERR="$("$BASE_DIR/utility/Snap2iPregel.sh" "$GRAPH" 2>&1 1> /dev/null)"
+    if [ $? -ne 0 ]; then
+        echo -e "Benchmark failed:\n\e[31m$CONVERSION_ERR\e[0m"
+    else
+        multirun iPregelSingleRun || echo -e "Benchmark failed:\n\e[31m$(iPregelSingleRun 2>&1)\e[0m"
+    fi
     echo
 }
 

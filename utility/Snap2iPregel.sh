@@ -2,6 +2,8 @@
 
 BASEDIR=$(dirname "$0")
 
+set -e
+
 # help text
 if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "" ]; then
     echo "This script converts SNAP graphs to a format recognizable by iPregel."
@@ -42,8 +44,8 @@ if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
     adj2bin="$(cd "$(dirname "$adj2bin")"; pwd)/$(basename "$adj2bin")"
 
     # check executable paths validity
-    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; exit; fi
-    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; exit; fi
+    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; exit 1; fi
+    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; exit 1; fi
 
     # write paths to config file
     echo "snap2adj='$snap2adj'" > "$BASEDIR/.s2ipconfig"
@@ -59,8 +61,8 @@ else
     source "$BASEDIR/.s2ipconfig"
 
     # check executable paths validity
-    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit; fi
-    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit; fi
+    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit 1; fi
+    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit 1; fi
 fi
 
 if [ $# -ne 1 ]; then
@@ -94,4 +96,5 @@ if [ -f "$1" ]; then
     echo "$graphName"
 else
     echo "File '$1' wasn't found." >&2
+    exit 1
 fi  
