@@ -49,7 +49,7 @@ parseArguments() {
     PROGRAM=$2
     GRAPH=$3
     shift; shift; shift
-    ADDITIONAL_PARAMS=$@
+    ADDITIONAL_PARAMS=("$@")
 
     PROGRAM_NAME="$(basename "${PROGRAM%.py}")"
     GRAPH_NAME="$(basename "${GRAPH%.txt}")"
@@ -63,7 +63,7 @@ parseArguments() {
 }
 
 iPregelSingleRun() {
-    "$IPREGEL_DIR/$PROGRAM" "${GRAPH%.txt}" "$RESULT_FILE" "$NUM_THREADS" "$SCHEDULE" "$CHUNK_SIZE" $ADDITIONAL_PARAMS && echo
+    "$IPREGEL_DIR/$PROGRAM" "${GRAPH%.txt}" "$RESULT_FILE" "$NUM_THREADS" "$SCHEDULE" "$CHUNK_SIZE" "${ADDITIONAL_PARAMS[@]}" && echo
 }
 
 # runs an iPregel executable located in IPREGEL_DIR, expects <program name> <graph> as inputs
@@ -77,7 +77,7 @@ iPregel() {
 }
 
 networkitSingleRun() {
-    python "$NETWORKIT_DIR/$PROGRAM.py" "$GRAPH" "$RESULT_FILE" --numThreads "$NUM_THREADS" $ADDITIONAL_PARAMS
+    python "$NETWORKIT_DIR/$PROGRAM.py" "$GRAPH" "$RESULT_FILE" --numThreads "$NUM_THREADS" "${ADDITIONAL_PARAMS[@]}"
 }
 
 # runs a networkit executable located in NETWORKIT_DIR, expects <program name> <graph> as inputs
