@@ -16,23 +16,29 @@ BASE_DIR="$(dirname "$0")/.."
 IPREGEL_DIR="$BASE_DIR/bin"
 NETWORKIT_DIR="$BASE_DIR/networkit"
 
+trap "exit SIGINT" SIGINT
+
 # for each THREAD_COUNT sets NUM_THREADS accordingly and
 # runs the given command NUM_REPETITION times
 multirun() {
     if "$DO_PREPARE_RUN"; then
         echo "Unmeasured run to load data into memory..."
+        # ignore memory output
+        MEMORY_FILE="/dev/null"
         # execute with max threads to be fast
         NUM_THREADS=${THREAD_COUNTS: -1}
         $1 &> /dev/null || return 1
     fi
 
     for NUM_THREADS in $THREAD_COUNTS; do
-        BENCHMARK_FILE="$BENCHMARK_DIR/${GRAPH_NAME}_${NUM_THREADS}.txt"
-        # empty benchmark file
-        true > "$BENCHMARK_FILE"
+        BENCHMARK_NAME="$BENCHMARK_DIR/${GRAPH_NAME}_${NUM_THREADS}"
+        TIME_FILE="${BENCHMARK_NAME}_time.txt"
+        MEMORY_FILE="${BENCHMARK_NAME}_memory.txt"
+        # empty benchmark files
+        true > "$TIME_FILE"; true > "$MEMORY_FILE"
         echo -n "Running $NUM_REPETITIONS times with thread count $NUM_THREADS: "
         for i in $(seq "$NUM_REPETITIONS"); do
-            $1 1>> "$BENCHMARK_FILE" 2> /dev/null || return 1
+            $1 1>> "$TIME_FILE" 2> /dev/null || return 1
             echo -n "#"
         done
         echo
@@ -59,7 +65,7 @@ parseArguments() {
 }
 
 iPregelSingleRun() {
-    "$IPREGEL_DIR/$PROGRAM" "${GRAPH%.txt}" "$RESULT_FILE" "$NUM_THREADS" "$SCHEDULE" "$CHUNK_SIZE" "${ADDITIONAL_PARAMS[@]}" && echo
+    /usr/bin/time -f "%M" -o "$MEMORY_FILE" -a "$IPREGEL_DIR/$PROGRAM" "${GRAPH%.txt}" "$RESULT_FILE" "$NUM_THREADS" "$SCHEDULE" "$CHUNK_SIZE" "${ADDITIONAL_PARAMS[@]}" && echo
 }
 
 # runs an iPregel executable located in IPREGEL_DIR, expects <program name> <graph> as inputs
@@ -77,7 +83,7 @@ iPregel() {
 }
 
 networkitSingleRun() {
-    python "$NETWORKIT_DIR/$PROGRAM.py" "$GRAPH" "$RESULT_FILE" --numThreads "$NUM_THREADS" "${ADDITIONAL_PARAMS[@]}"
+    /usr/bin/time -f "%M" -o "$MEMORY_FILE" -a python "$NETWORKIT_DIR/$PROGRAM.py" "$GRAPH" "$RESULT_FILE" --numThreads "$NUM_THREADS" "${ADDITIONAL_PARAMS[@]}"
 }
 
 # runs a networkit executable located in NETWORKIT_DIR, expects <program name> <graph> as inputs
