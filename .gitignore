@@ -15,3 +15,4 @@ out.txt
 analyses/*/data_original
 analyses/*/data_prepared
 analyses/*/results
+benchmark_results

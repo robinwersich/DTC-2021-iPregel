@@ -2,6 +2,8 @@
 
 BASEDIR=$(dirname "$0")
 
+set -e
+
 # help text
 if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "" ]; then
     echo "This script converts SNAP graphs to a format recognizable by iPregel."
@@ -22,7 +24,7 @@ fi
 if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
     # check input validity
     if [ $# -ne 1 ] && [ $# -ne 3 ]; then
-        echo "The config option has to be used either with both executable paths or none (interactive mode)."
+        echo "The config option has to be used either with both executable paths or none (interactive mode)." >&2
         exit 1
     fi
 
@@ -42,8 +44,8 @@ if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
     adj2bin="$(cd "$(dirname "$adj2bin")"; pwd)/$(basename "$adj2bin")"
 
     # check executable paths validity
-    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; exit; fi
-    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; exit; fi
+    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; exit 1; fi
+    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; exit 1; fi
 
     # write paths to config file
     echo "snap2adj='$snap2adj'" > "$BASEDIR/.s2ipconfig"
@@ -52,24 +54,32 @@ if [ "$1" = "--config" ] || [ "$1" = "-c" ]; then
 fi
 
 if [ ! -f "$BASEDIR/.s2ipconfig" ]; then
-    echo "Please first configure the location of the ligra converters used by this script:"
-    echo "$0 --config <SNAPtoAdj executable> <adjToBinary executable>"
+    echo "Please first configure the location of the ligra converters used by this script:" >&2
+    echo "$0 --config <SNAPtoAdj executable> <adjToBinary executable>" >&2
     exit 1
 else
     source "$BASEDIR/.s2ipconfig"
 
     # check executable paths validity
-    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit; fi
-    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit; fi
+    if [ ! -f "$snap2adj" ]; then echo "'$snap2adj' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit 1; fi
+    if [ ! -f "$adj2bin" ]; then echo "'$adj2bin' doesn't exist"; rm "$BASEDIR/.s2ipconfig"; exit 1; fi
 fi
 
 if [ $# -ne 1 ]; then
-    echo "Too many arguments. Expected a single input file (refer to --help)."
+    echo "Too many arguments. Expected a single input file (refer to --help)." >&2
     exit 1
 fi
 
 if [ -f "$1" ]; then
     graphName="${1%.txt}"
+
+    # skip conversion if the graph was already converted
+    if [ -f "$graphName.idx" ] && [ -f "$graphName.adj" ] && [ -f "$graphName.config" ]; then
+        echo "Graph was already converted." >&2
+        # print path of exported binary graph to be passed to iPregel program
+        echo "$graphName"
+        exit
+    fi
 
     # converting to Ligra binary format
     "$snap2adj" "$1" "$graphName.tmp"
@@ -79,11 +89,12 @@ if [ -f "$1" ]; then
     edges=$(sed -n 3p "$graphName.tmp")
     echo -e "\n$edges" >> "$graphName.config"
 
-    #remove tmp files
+    # remove tmp files
     rm -f "$graphName.tmp"
 
     # print path of exported binary graph to be passed to iPregel program
     echo "$graphName"
 else
-    echo "File '$1' wasn't found."
+    echo "File '$1' wasn't found." >&2
+    exit 1
 fi  
