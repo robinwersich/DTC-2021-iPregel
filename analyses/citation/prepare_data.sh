@@ -41,6 +41,9 @@ else
         # no error if results dir already exists
         mkdir "data_prepared" "results" 2> /dev/null || true
         python papersToUsers.py "data_original/paper-citation.txt" "data_original/metadata" "data_prepared/author-citation.txt" "results/author-metadata.txt"
+
+        echo "Creating undirected version of graph..."
+        python ../../utility/convert_to_undirected_graph.py "data_prepared/author-citation.txt" | uniq > "data_prepared/undirected-author-citation.txt"
     )
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Aborting."

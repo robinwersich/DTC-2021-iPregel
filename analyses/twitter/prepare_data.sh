@@ -47,6 +47,10 @@ else
         cd "../results"
         echo "Calculating classic node importance score: Follower Count..."
         python ../calculate_follower_count.py "../data_original/higgs-social_network.edgelist"
+
+        cd ".."
+        echo "Creating undirected version of graph..."
+        python ../../utility/convert_to_undirected_graph.py "data_prepared/prepared_higgs-activity_time.txt" | uniq > "data_prepared/undirected-prepared_higgs-activity_time.txt"
     )
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Aborting."
