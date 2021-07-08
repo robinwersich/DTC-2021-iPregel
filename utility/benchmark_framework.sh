@@ -30,6 +30,9 @@ multirun() {
         $1 &> /dev/null || return 1
     fi
 
+    # track which time files have been written
+    TIME_FILES=()
+
     for NUM_THREADS in $THREAD_COUNTS; do
         BENCHMARK_NAME="$BENCHMARK_DIR/${GRAPH_NAME}_${NUM_THREADS}"
         TIME_FILE="${BENCHMARK_NAME}_time.txt"
@@ -41,6 +44,7 @@ multirun() {
             $1 1>> "$TIME_FILE" 2> /dev/null || return 1
             echo -n "#"
         done
+        TIME_FILES+=("$TIME_FILE")
         echo
     done
 }
@@ -65,7 +69,9 @@ parseArguments() {
 }
 
 iPregelSingleRun() {
-    /usr/bin/time -f "%M" -o "$MEMORY_FILE" -a "$IPREGEL_DIR/$PROGRAM" "${GRAPH%.txt}" "$RESULT_FILE" "$NUM_THREADS" "$SCHEDULE" "$CHUNK_SIZE" "${ADDITIONAL_PARAMS[@]}" && echo
+    /usr/bin/time -f "%M" -o "$MEMORY_FILE" -a \
+    "$IPREGEL_DIR/$PROGRAM" "${GRAPH%.txt}" "$RESULT_FILE" "$NUM_THREADS" "$SCHEDULE" "$CHUNK_SIZE" "${ADDITIONAL_PARAMS[@]}" \
+    && echo -e "\n******************************************\n" # separator for extracting results
 }
 
 # runs an iPregel executable located in IPREGEL_DIR, expects <program name> <graph> as inputs
@@ -77,13 +83,28 @@ iPregel() {
     if [ $? -ne 0 ]; then
         echo -e "Benchmark failed:\n\e[31m$CONVERSION_ERR\e[0m"
     else
-        multirun iPregelSingleRun || echo -e "Benchmark failed:\n\e[31m$(iPregelSingleRun 2>&1)\e[0m"
+        multirun iPregelSingleRun
+        if [ $? -ne 0 ]; then
+            echo -e "Benchmark failed:\n\e[31m$(iPregelSingleRun 2>&1)\e[0m"
+        else
+            for IPREGEL_TIME_FILE in "${TIME_FILES[@]}"; do
+                TMP_NAME="$IPREGEL_TIME_FILE.original"
+                mv "$IPREGEL_TIME_FILE" "$TMP_NAME"
+                CONVERSION_ERR="$(python "$BASE_DIR/utility/iPregelBenchmarkToCSV.py" "$TMP_NAME" "$IPREGEL_TIME_FILE" 2>&1)"
+                if [ $? -ne 0 ]; then
+                    echo -e "Benchmark result conversion failed:\n\e[31m$CONVERSION_ERR\e[0m"
+                    break
+                fi
+                # rm -f "$TMP_NAME"
+            done
+        fi
     fi
     echo
 }
 
 networkitSingleRun() {
-    /usr/bin/time -f "%M" -o "$MEMORY_FILE" -a python "$NETWORKIT_DIR/$PROGRAM.py" "$GRAPH" "$RESULT_FILE" --numThreads "$NUM_THREADS" "${ADDITIONAL_PARAMS[@]}"
+    /usr/bin/time -f "%M" -o "$MEMORY_FILE" -a \
+    python "$NETWORKIT_DIR/$PROGRAM.py" "$GRAPH" "$RESULT_FILE" --numThreads "$NUM_THREADS" "${ADDITIONAL_PARAMS[@]}"
 }
 
 # runs a networkit executable located in NETWORKIT_DIR, expects <program name> <graph> as inputs
