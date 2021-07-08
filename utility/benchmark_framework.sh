@@ -7,7 +7,7 @@ DO_PREPARE_RUN="true"
 
 # iPregel default parameters
 SCHEDULE="dynamic"
-CHUNK_SIZE="10"
+CHUNK_SIZE="64"
 
 # derive root dir from benchmark script path
 BASE_DIR="$(dirname "$0")/.."

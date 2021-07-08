@@ -8,6 +8,9 @@ cd $BASE_DIR
 THREAD_COUNTS="1 2"
 NUM_REPETITIONS="2"
 
+SCHEDULE=dynamic
+CHUNK_SIZE=256
+
 # comment in if you don't want to do an extra run to load the data into RAM
 # DO_PREPARE_RUN=false
 
