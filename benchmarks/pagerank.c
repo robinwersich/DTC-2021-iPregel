@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	printf("ApplicationConfiguration:maxSuperstepCount=10\n");
+	printf("ApplicationConfiguration:maxSuperstepCount=%u\n", atoi(argv[6]));
 
 	////////////////////
 	// INITILISATION //
