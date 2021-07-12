@@ -56,7 +56,7 @@ dump_end = timeit.default_timer()
 # write benchmarking times to stdout, rest to stderr, so we can separate
 print(f"Wrote results to {args.output}.\n", file=sys.stderr)
 if args.printNumIterations:
-    print(f"Number of iterations performed by the algorithm: {P.numberOfIterations()}", file=sys.stderr)
+    print(f"Number of iterations performed by the algorithm: {P.numberOfIterations()}")
 print(f"Wrote results to {args.output}.\n", file=sys.stderr)
 print("loading time\tcalculating time\tdumping time", file=sys.stderr)
 print(f"{calculate_start - load_start}\t{dump_start - calculate_start}\t{dump_end - dump_start}", file=sys.stdout)
