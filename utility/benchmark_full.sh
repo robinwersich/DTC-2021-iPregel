@@ -15,20 +15,20 @@ CHUNK_SIZE=256
 # DO_PREPARE_RUN=false
 
 # ----- iPregel programs -----
-iPregel cc_32 analyses/citation/data_prepared/author-citation.txt directed
-iPregel cc_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt directed
-iPregel cc_32 analyses/stackoverflow/data_prepared/stackoverflow.txt directed
-iPregel cc_32 analyses/imdb/data_prepared/hollywood-2011.txt undirected
+iPregel cc_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation.txt directed
+iPregel cc_single_broadcast_spread_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt directed
+iPregel cc_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow.txt directed
+iPregel cc_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt undirected
 
-iPregel pagerank_32 analyses/citation/data_prepared/author-citation.txt 10
-iPregel pagerank_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt 10
-iPregel pagerank_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 10
-iPregel pagerank_32 analyses/imdb/data_prepared/hollywood-2011.txt 10
+iPregel pagerank_single_broadcast_32 analyses/citation/data_prepared/author-citation.txt 10
+iPregel pagerank_single_broadcast_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt 10
+iPregel pagerank_single_broadcast_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 10
+iPregel pagerank_single_broadcast_32 analyses/imdb/data_prepared/hollywood-2011.txt 10
 
-iPregel sssp_32 analyses/citation/data_prepared/author-citation.txt 0 directed
-iPregel sssp_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt 0 directed
-iPregel sssp_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 0 directed
-iPregel sssp_32 analyses/imdb/data_prepared/hollywood-2011.txt 0 undirected
+iPregel sssp_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation.txt 0 directed
+iPregel sssp_single_broadcast_spread_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt 0 directed
+iPregel sssp_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 0 directed
+iPregel sssp_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt 0 undirected
 
 
 # ----- networkit programs -----
