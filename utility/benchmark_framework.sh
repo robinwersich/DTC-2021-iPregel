@@ -16,7 +16,7 @@ BASE_DIR="$(dirname "$0")/.."
 IPREGEL_DIR="$BASE_DIR/bin"
 NETWORKIT_DIR="$BASE_DIR/networkit"
 
-trap "exit SIGINT" SIGINT
+trap "exit 2" SIGINT
 
 # for each THREAD_COUNT sets NUM_THREADS accordingly and
 # runs the given command NUM_REPETITION times
