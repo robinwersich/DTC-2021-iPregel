@@ -16,9 +16,9 @@ else
             
             mkdir data_original && cd data_original
             echo "Downloading..."
-            curl https://snap.stanford.edu/data/higgs-activity_time.txt.gz --output higgs-activity_time.txt.gz
+            curl https://snap.stanford.edu/data/higgs-activity_time.txt.gz --output higgs-activity_time_original.txt.gz
             echo "Extracting..."
-            gzip -d higgs-activity_time.txt.gz
+            gzip -d higgs-activity_time_original.txt.gz
 
             echo "Downloading friends / follower graph .."
             curl https://snap.stanford.edu/data/higgs-social_network.edgelist.gz --output higgs-social_network.edgelist.gz
@@ -42,15 +42,18 @@ else
 
         cd "data_prepared"
         echo "Removing timestamps, interaction types, self-interactions and duplicates..."
-        python ../preprocess_twitter_network.py "../data_original/higgs-activity_time.txt" "./prepared_higgs-activity_time.txt"
+        python ../preprocess_twitter_network.py "../data_original/higgs-activity_time_original.txt" "./higgs-activity_time.txt"
 
         cd "../results"
         echo "Calculating classic node importance score: Follower Count..."
         python ../calculate_follower_count.py "../data_original/higgs-social_network.edgelist"
 
         cd ".."
+        GRAPH_NAME="data_prepared/higgs-activity_time"
+        echo "Creating reversed version of graph..."
+        ../../utility/reverse_edges.sh < "${GRAPH_NAME}.txt" > "${GRAPH_NAME}_reversed.txt"
         echo "Creating undirected version of graph..."
-        python ../../utility/convert_to_undirected_graph.py "data_prepared/prepared_higgs-activity_time.txt" | uniq > "data_prepared/undirected-prepared_higgs-activity_time.txt"
+        cat "${GRAPH_NAME}.txt" "${GRAPH_NAME}_reversed.txt" | sort -S 50% -n | uniq > "${GRAPH_NAME}_undirected.txt"
     )
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Aborting."

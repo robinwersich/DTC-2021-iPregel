@@ -15,34 +15,34 @@ CHUNK_SIZE=256
 # DO_PREPARE_RUN=false
 
 # ----- iPregel programs -----
-iPregel cc_single_broadcast_spread_32 analyses/citation/data_prepared/undirected-author-citation.txt undirected
-iPregel cc_single_broadcast_spread_32 analyses/twitter/data_prepared/undirected-prepared_higgs-activity_time.txt undirected
-iPregel cc_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/undirected-stackoverflow.txt undirected
+iPregel cc_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation_undirected.txt undirected
+iPregel cc_single_broadcast_spread_32 analyses/twitter/data_prepared/higgs-activity_time_undirected.txt undirected
+iPregel cc_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow_undirected.txt undirected
 iPregel cc_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt undirected
 
 iPregel pagerank_single_broadcast_32 analyses/citation/data_prepared/author-citation.txt 10
-iPregel pagerank_single_broadcast_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt 10
+iPregel pagerank_single_broadcast_32 analyses/twitter/data_prepared/higgs-activity_time.txt 10
 iPregel pagerank_single_broadcast_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 10
 iPregel pagerank_single_broadcast_32 analyses/imdb/data_prepared/hollywood-2011.txt 10
 
-iPregel sssp_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation.txt 0 directed
-iPregel sssp_single_broadcast_spread_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt 0 directed
-iPregel sssp_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 0 directed
+iPregel sssp_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation_reversed.txt 0 directed
+iPregel sssp_single_broadcast_spread_32 analyses/twitter/data_prepared/higgs-activity_time_reversed.txt 0 directed
+iPregel sssp_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt 0 directed
 iPregel sssp_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt 0 undirected
 
 
 # ----- networkit programs -----
-networkit connected_components analyses/citation/data_prepared/undirected-author-citation.txt --undirected
-networkit connected_components analyses/twitter/data_prepared/undirected-prepared_higgs-activity_time.txt --undirected
-networkit connected_components analyses/stackoverflow/data_prepared/undirected-stackoverflow.txt --undirected
+networkit connected_components analyses/citation/data_prepared/author-citation_undirected.txt --undirected
+networkit connected_components analyses/twitter/data_prepared/higgs-activity_time_undirected.txt --undirected
+networkit connected_components analyses/stackoverflow/data_prepared/stackoverflow_undirected.txt --undirected
 networkit connected_components analyses/imdb/data_prepared/hollywood-2011.txt --undirected
 
 networkit pagerank analyses/citation/data_prepared/author-citation.txt --directed
-networkit pagerank analyses/twitter/data_prepared/prepared_higgs-activity_time.txt --directed
+networkit pagerank analyses/twitter/data_prepared/higgs-activity_time.txt --directed
 networkit pagerank analyses/stackoverflow/data_prepared/stackoverflow.txt --directed
 networkit pagerank analyses/imdb/data_prepared/hollywood-2011.txt --undirected
 
-networkit sssp analyses/citation/data_prepared/author-citation.txt --startnode 0 --directed
-networkit sssp analyses/twitter/data_prepared/prepared_higgs-activity_time.txt --startnode 0 --directed
-networkit sssp analyses/stackoverflow/data_prepared/stackoverflow.txt --startnode 0 --directed
-networkit sssp analyses/imdb/data_prepared/hollywood-2011.txt --startnode 0 --undirected
+networkit sssp analyses/citation/data_prepared/author-citation_reversed.txt --startnode 0 --directed
+networkit sssp analyses/twitter/data_prepared/higgs-activity_time_reversed.txt --startnode 0 --directed
+networkit sssp analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt --startnode 0 --directed
+networkit sssp analyses/imdb/data_prepared/hollywood-2011_reversed.txt --startnode 0 --undirected

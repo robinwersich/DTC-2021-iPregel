@@ -16,12 +16,14 @@ DO_PREPARE_RUN=false
 
 # change iPregel parameters if you want: SCHEDULE and CHUNK_SIZE
 
-networkit betweenness_centrality analyses/citation/data_prepared/author-citation.txt --directed
-networkit betweenness_centrality analyses/twitter/data_prepared/prepared_higgs-activity_time.txt --directed
-networkit betweenness_centrality analyses/stackoverflow/data_prepared/stackoverflow.txt --directed
-networkit betweenness_centrality analyses/imdb/data_prepared/hollywood-2011.txt --undirected
+networkit betweenness_centrality analyses/citation/data_prepared/author-citation_reversed.txt --directed
+networkit closeness_centrality analyses/citation/data_prepared/author-citation_reversed.txt --directed
 
-networkit closeness_centrality analyses/citation/data_prepared/author-citation.txt --directed
-networkit closeness_centrality analyses/twitter/data_prepared/prepared_higgs-activity_time.txt --directed
-networkit closeness_centrality analyses/stackoverflow/data_prepared/stackoverflow.txt --directed
+networkit betweenness_centrality analyses/twitter/data_prepared/higgs-activity_time_reversed.txt --directed
+networkit closeness_centrality analyses/twitter/data_prepared/higgs-activity_time_reversed.txt --directed
+
+networkit betweenness_centrality analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt --directed
+networkit closeness_centrality analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt --directed
+
+networkit betweenness_centrality analyses/imdb/data_prepared/hollywood-2011.txt --undirected
 networkit closeness_centrality analyses/imdb/data_prepared/hollywood-2011.txt --undirected

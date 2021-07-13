@@ -34,12 +34,18 @@ else
 
         # no error if results dir already exists
         mkdir "data_prepared" "results" 2> /dev/null || true
-        echo "Removing timestamps, reversing edges and removing duplicates..."
+        echo "Removing timestamps and removing duplicates..."
         echo "This is a huge graph, so it may take quite a while - relax."
-        python reverse_remove_timestamp.py "data_original/stackoverflow-original.txt" | sort | uniq > "data_prepared/stackoverflow.txt"
 
+        GRAPH_NAME="data_prepared/stackoverflow"
+        # remove timestamps, then self loops, then duplicates
+        # as people with many interactions have many outgoing edges in this graph, this is the reversed version
+        sed -E "s/\s+[0-9]+$//" "data_original/stackoverflow-original.txt" | sed -E "/^([0-9]+)\s+\1$/d" | sort -S 50% -n | uniq > "${GRAPH_NAME}_reversed.txt"
+        
+        echo "Creating reversed version of graph..."
+        ../../utility/reverse_edges.sh < "${GRAPH_NAME}_reversed.txt" > "${GRAPH_NAME}.txt"
         echo "Creating undirected version of graph..."
-        python ../../utility/convert_to_undirected_graph.py "data_prepared/stackoverflow.txt" | uniq > "data_prepared/undirected-stackoverflow.txt"
+        cat "${GRAPH_NAME}.txt" "${GRAPH_NAME}_reversed.txt" | sort -S 50% -n | uniq > "${GRAPH_NAME}_undirected.txt"
     )
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Aborting."
