@@ -35,18 +35,22 @@ else
         # no error if results dir already exists
         mkdir "data_prepared" "results" 2> /dev/null || true
 
-        echo "Converting Webgraph Graph to SNAP Graph ..."
-        echo "Cloning Web2Snap repository..."
-        git clone https://github.com/phoeinx/Web2Snap.git &> /dev/null
-        cd "Web2Snap"
-        echo "Building Web2Snap converter ..."
-        mvn package &> /dev/null
-        echo "Converting graph... (It's again a big graph and time for a coffee break.)"
-        java -cp target/Web2Snap-1.0-SNAPSHOT-jar-with-dependencies.jar org.zork.Web2Snap "../data_original/hollywood-2011" "../data_prepared/hollywood-2011.txt" > /dev/null
-        echo "Successfully converted graph!"
-        cd ".."
-        echo "Deleting Web2Snap repository ..."
-        rm -rf "Web2Snap"
+        if [ -x "$(command -v java)" ] && [ -x "$(command -v mvn)" ]; then
+            echo "Converting Webgraph Graph to SNAP Graph ..."
+            echo "Cloning Web2Snap repository..."
+            git clone https://github.com/phoeinx/Web2Snap.git &> /dev/null
+            cd "Web2Snap"
+            echo "Building Web2Snap converter ..."
+            mvn package &> /dev/null
+            echo "Converting graph... (It's again a big graph and time for a coffee break.)"
+            java -cp target/Web2Snap-1.0-SNAPSHOT-jar-with-dependencies.jar org.zork.Web2Snap "../data_original/hollywood-2011" "../data_prepared/hollywood-2011.txt" > /dev/null
+            echo "Successfully converted graph!"
+            cd ".."
+            echo "Deleting Web2Snap repository ..."
+            rm -rf "Web2Snap"
+        else
+            echo "Graph conversion requires java and maven to be installed. Skipping conversion."
+        fi
 
         echo "Preparing analysis data..."
         echo "Downloading id look-up file to match actor id with actor name && Academy Award Nominee List from Wikipedia ..."

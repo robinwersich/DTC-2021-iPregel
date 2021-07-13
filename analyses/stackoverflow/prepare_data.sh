@@ -37,6 +37,9 @@ else
         echo "Removing timestamps, reversing edges and removing duplicates..."
         echo "This is a huge graph, so it may take quite a while - relax."
         python reverse_remove_timestamp.py "data_original/stackoverflow-original.txt" | sort | uniq > "data_prepared/stackoverflow.txt"
+
+        echo "Creating undirected version of graph..."
+        python ../../utility/convert_to_undirected_graph.py "data_prepared/stackoverflow.txt" | uniq > "data_prepared/undirected-stackoverflow.txt"
     )
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Aborting."

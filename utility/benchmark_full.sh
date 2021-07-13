@@ -15,9 +15,9 @@ CHUNK_SIZE=256
 # DO_PREPARE_RUN=false
 
 # ----- iPregel programs -----
-iPregel cc_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation.txt directed
-iPregel cc_single_broadcast_spread_32 analyses/twitter/data_prepared/prepared_higgs-activity_time.txt directed
-iPregel cc_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow.txt directed
+iPregel cc_single_broadcast_spread_32 analyses/citation/data_prepared/undirected-author-citation.txt undirected
+iPregel cc_single_broadcast_spread_32 analyses/twitter/data_prepared/undirected-prepared_higgs-activity_time.txt undirected
+iPregel cc_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/undirected-stackoverflow.txt undirected
 iPregel cc_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt undirected
 
 iPregel pagerank_single_broadcast_32 analyses/citation/data_prepared/author-citation.txt 10
@@ -32,9 +32,9 @@ iPregel sssp_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-20
 
 
 # ----- networkit programs -----
-networkit connected_components analyses/citation/data_prepared/author-citation.txt --directed
-networkit connected_components analyses/twitter/data_prepared/prepared_higgs-activity_time.txt --directed
-networkit connected_components analyses/stackoverflow/data_prepared/stackoverflow.txt --directed
+networkit connected_components analyses/citation/data_prepared/undirected-author-citation.txt --undirected
+networkit connected_components analyses/twitter/data_prepared/undirected-prepared_higgs-activity_time.txt --undirected
+networkit connected_components analyses/stackoverflow/data_prepared/undirected-stackoverflow.txt --undirected
 networkit connected_components analyses/imdb/data_prepared/hollywood-2011.txt --undirected
 
 networkit pagerank analyses/citation/data_prepared/author-citation.txt --directed
