@@ -8,7 +8,7 @@ source "$(dirname "$0")/benchmark_framework.sh"
 cd $BASE_DIR
 
 # set these according to your needs
-THREAD_COUNTS="4"
+THREAD_COUNTS="128"
 NUM_REPETITIONS="1"
 
 # comment in if you don't want to do an extra run to load the data into RAM

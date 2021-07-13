@@ -5,8 +5,8 @@ source "$(dirname "$0")/benchmark_framework.sh"
 cd $BASE_DIR
 
 # set these according to your needs
-THREAD_COUNTS="1 2 4 8 16 32"
-NUM_REPETITIONS="25"
+THREAD_COUNTS="1 2 4 8 16 18 32 36"
+NUM_REPETITIONS="100"
 
 SCHEDULE=dynamic
 CHUNK_SIZE=256
