@@ -36,18 +36,16 @@ else
         mkdir "data_prepared" "results" 2> /dev/null || true
 
         if [ -x "$(command -v java)" ] && [ -x "$(command -v mvn)" ]; then
-            echo "Converting Webgraph Graph to SNAP Graph ..."
-            echo "Cloning Web2Snap repository..."
-            git clone https://github.com/phoeinx/Web2Snap.git &> /dev/null
-            cd "Web2Snap"
-            echo "Building Web2Snap converter ..."
-            mvn package &> /dev/null
+            echo "Converting Webgraph Graph to SNAP Graph..."
+            cd "WebGraphDecoder"
+            echo "Building WebGraphDecoder"
+            mvn compile > /dev/null
             echo "Converting graph... (It's again a big graph and time for a coffee break.)"
-            java -cp target/Web2Snap-1.0-SNAPSHOT-jar-with-dependencies.jar org.zork.Web2Snap "../data_original/hollywood-2011" "../data_prepared/hollywood-2011.txt" > /dev/null
+            mvn exec:java -Dexec.mainClass="it.unimi.dsi.webgraph.BVGraph" -Dexec.args="-o -O -L '$(pwd)/../data_original/hollywood-2011'" > /dev/null
+            mvn exec:java -Dexec.mainClass="com.dtc.WebGraphDecoder" -Dexec.args="'$(pwd)/../data_original/hollywood-2011' '$(pwd)/../data_prepared/hollywood-2011.txt'" > /dev/null
             echo "Successfully converted graph!"
+            mvn clean > /dev/null
             cd ".."
-            echo "Deleting Web2Snap repository ..."
-            rm -rf "Web2Snap"
         else
             echo "Graph conversion requires java and maven to be installed. Skipping conversion."
         fi
@@ -60,7 +58,7 @@ else
         echo "Data preparation failed. Aborting."
         rm -rf "data_prepared"
         rm -rf "results/hollywood-2011-ids.txt" "results/academy_award_nominees.csv"
-        rm -rf "Web2Snap"
+        rm -rf "WebGraphDecoder/target"
         exit 1
     fi
 fi
