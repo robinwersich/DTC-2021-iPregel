@@ -25,10 +25,10 @@ iPregel pagerank_single_broadcast_32 analyses/twitter/data_prepared/higgs-activi
 iPregel pagerank_single_broadcast_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 10
 iPregel pagerank_single_broadcast_32 analyses/imdb/data_prepared/hollywood-2011.txt 10
 
-iPregel sssp_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation_reversed.txt 0 directed
-iPregel sssp_single_broadcast_spread_32 analyses/twitter/data_prepared/higgs-activity_time_reversed.txt 0 directed
-iPregel sssp_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt 0 directed
-iPregel sssp_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt 0 undirected
+iPregel sssp_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation_reversed.txt 398 directed
+iPregel sssp_single_broadcast_spread_32 analyses/twitter/data_prepared/higgs-activity_time_reversed.txt 1503 directed
+iPregel sssp_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt 22656 directed
+iPregel sssp_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt 1765703 undirected
 
 
 # ----- networkit programs -----
@@ -42,7 +42,7 @@ networkit pagerank analyses/twitter/data_prepared/higgs-activity_time.txt --dire
 networkit pagerank analyses/stackoverflow/data_prepared/stackoverflow.txt --directed
 networkit pagerank analyses/imdb/data_prepared/hollywood-2011.txt --undirected
 
-networkit sssp analyses/citation/data_prepared/author-citation_reversed.txt --startnode 0 --directed
-networkit sssp analyses/twitter/data_prepared/higgs-activity_time_reversed.txt --startnode 0 --directed
-networkit sssp analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt --startnode 0 --directed
-networkit sssp analyses/imdb/data_prepared/hollywood-2011_reversed.txt --startnode 0 --undirected
+networkit sssp analyses/citation/data_prepared/author-citation_reversed.txt --startnode 398 --directed
+networkit sssp analyses/twitter/data_prepared/higgs-activity_time_reversed.txt --startnode 1503 --directed
+networkit sssp analyses/stackoverflow/data_prepared/stackoverflow_reversed.txt --startnode 22656 --directed
+networkit sssp analyses/imdb/data_prepared/hollywood-2011.txt --startnode 1765703 --undirected
