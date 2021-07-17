@@ -1,0 +1,33 @@
+import sys
+import os
+import networkit as nk
+import pandas as pd
+
+if len(sys.argv) <= 1 or not os.path.exists(sys.argv[1]):
+    print(f"usage: {sys.argv[0]} <relative_path_to_stackoverflow_edgelist> --<output_path_to_interaction_counts> --<output_path_to_sorted_interaction_counts>")
+    sys.exit(1)
+
+input_file_path = sys.argv[1]
+output_file_path = sys.argv[2] if len(sys.argv) > 2 else 'interaction_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
+sorted_output_file_path = sys.argv[3] if len(sys.argv) > 3 else 'sorted_interaction_count_' + os.path.splitext(os.path.basename(input_file_path))[0] + '.txt'
+
+G = nk.readGraph(input_file_path, nk.Format.EdgeList, separator="\t", firstNode=1, directed=True)
+
+# print(nk.overview(G), '\n')
+
+D = nk.centrality.DegreeCentrality(G, outDeg=True, ignoreSelfLoops=True)
+D.run()
+interaction_counts = D.scores()
+
+df = pd.DataFrame(interaction_counts, columns=['Interaction Count'])
+
+# NodeIDs are 1-indexed
+df.index += 1
+
+df.to_csv(output_file_path, header=None, sep=' ', mode='w', float_format='%.f')
+# print('Wrote follower counts to {} \n'.format(output_file_path))
+
+sorted_df = df.sort_values(by='Interaction Count', ascending=False)
+
+sorted_df.to_csv(sorted_output_file_path, header=None, sep=' ', mode='w', float_format='%.f')
+# print('Wrote sorted follower counts to {} \n'.format(sorted_output_file_path))
