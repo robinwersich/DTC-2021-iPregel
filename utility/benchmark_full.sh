@@ -20,10 +20,12 @@ iPregel cc_single_broadcast_spread_32 analyses/twitter/data_prepared/higgs-activ
 iPregel cc_single_broadcast_spread_32 analyses/stackoverflow/data_prepared/stackoverflow_undirected.txt undirected
 iPregel cc_single_broadcast_spread_32 analyses/imdb/data_prepared/hollywood-2011.txt undirected
 
-iPregel pagerank_single_broadcast_32 analyses/citation/data_prepared/author-citation.txt 10
-iPregel pagerank_single_broadcast_32 analyses/twitter/data_prepared/higgs-activity_time.txt 10
-iPregel pagerank_single_broadcast_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 10
-iPregel pagerank_single_broadcast_32 analyses/imdb/data_prepared/hollywood-2011.txt 10
+# iPregel doesn't implement terminating PageRank based on convergence of results
+# therefore we take the number of iterations the networkit program needed to converge
+iPregel pagerank_single_broadcast_32 analyses/citation/data_prepared/author-citation.txt 63
+iPregel pagerank_single_broadcast_32 analyses/twitter/data_prepared/higgs-activity_time.txt 88
+iPregel pagerank_single_broadcast_32 analyses/stackoverflow/data_prepared/stackoverflow.txt 44
+iPregel pagerank_single_broadcast_32 analyses/imdb/data_prepared/hollywood-2011.txt 41
 
 iPregel sssp_single_broadcast_spread_32 analyses/citation/data_prepared/author-citation_reversed.txt 398 directed
 iPregel sssp_single_broadcast_spread_32 analyses/twitter/data_prepared/higgs-activity_time_reversed.txt 1503 directed

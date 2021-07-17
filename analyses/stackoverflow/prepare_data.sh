@@ -51,7 +51,7 @@ else
         cd "results"
         # we calculate the interaction count with the reversed graph that has outgoing edges for each interaction on each vertex
         echo "Calculating interaction count of each node ..." 
-        python ../calculate_interaction_count.py "../data_prepared/${GRAPH_NAME}_reversed.txt"
+        python ../calculate_interaction_count.py "../${GRAPH_NAME}_reversed.txt"
     )
     if [ $? -ne 0 ]; then
         echo "Data preparation failed. Aborting."
