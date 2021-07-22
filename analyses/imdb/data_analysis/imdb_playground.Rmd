@@ -1,0 +1,25 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+bc = read.csv("../results/networkit_betweenness_centrality_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(bc) <- c("ID", "BC")
+
+id_mapping = read.csv("../results/hollywood-2011-ids.txt", header=FALSE)
+colnames(id_mapping) <- c("ID", "Name")
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+bc$ID <- bc$ID + 1
+id_mapping$ID <- id_mapping$ID + 1
+
+# find actor / actress with highest betweeness centrality
+max_bc <- bc[which.max(bc$BC),]
+max_bc_actor <- id_mapping[max_bc$ID,]
+
+```
+
+
