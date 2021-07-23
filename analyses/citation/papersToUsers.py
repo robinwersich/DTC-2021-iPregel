@@ -70,7 +70,6 @@ def write_graph_and_metadata(in_graph, out_graph, out_meta, authors_papers_dict)
 
     # write metadata (author names and h-index) to file
     print("ID\tname\th-index", file=out_meta)
-    print("=========================", file=out_meta)
     for id, author in enumerate(authors):
         # algorithm: sort paper counts decreasing, find sidelength of largest square under plotted curve
         paper_citations = sorted([paper_cite_counts[paper] for paper in authors_papers_dict[author]], reverse=True)
@@ -78,7 +77,7 @@ def write_graph_and_metadata(in_graph, out_graph, out_meta, authors_papers_dict)
         while h_index < len(paper_citations) and paper_citations[h_index] >= h_index + 1:
             h_index += 1
             
-        print(f"{id}:\t{author}\t{h_index}", file=out_meta)
+        print(f"{id}\t{author}\t{h_index}", file=out_meta)
 
 def authors_papers_to_papers_author_ids(authors_papers_dict):
     """creates a dict mapping paper ids to author ids"""
