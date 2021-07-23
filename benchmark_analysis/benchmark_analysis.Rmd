@@ -1,0 +1,65 @@
+---
+title: "Benchmark Analysis"
+author: "Robin Wersich & Thresea Hradilak"
+date: "7/23/2021"
+output: html_document
+---
+
+```{r}
+# abstractions
+results.path = "../benchmark_results"
+algorithms = data.frame(
+  name = c("connected components", "pagerank", "sssp"),
+  iPregel = c("cc_single_broadcast_spread_32", "pagerank_single_broadcast_32", "sssp_single_broadcast_spread_32"),
+  networkit = c("connected_components", "pagerank", "sssp")
+)
+frameworks = colnames(algorithms)[-1]
+time.cols = c("load", "calc", "dump")
+memory.cols = c("memory")
+
+# list with one data frame for each algorithm-graph configuration
+performance = list()
+performance.df.colnames = c(
+  "thread.count", outer(frameworks, c(time.cols, memory.cols), FUN = function(a, b) paste(a, b, sep = ".")))
+
+# iterate over benchmark results and add values step-by-step
+for (framework in frameworks) {
+  for (algorithm in algorithms$name) {
+    # create data frame of relevant benchmark result files
+    measurements.folder = paste(results.path, framework, algorithms[algorithms$name == algorithm, framework], sep = "/")
+    measurements.files.paths = list.files(measurements.folder)
+    measurements.files.df = as.data.frame(na.omit(str_match(measurements.files.paths, "^([\\w-]+)_(\\d+)_(\\w+).txt$")))
+    colnames(measurements.files.df) = c("filename", "dataset", "thread.count", "type")
+    measurements.files.df$thread.count = as.numeric(measurements.files.df$thread.count)
+    
+    # iterate over files and add values to performance data frame
+    for (row in 1:nrow(measurements.files.df)) {
+      measurement = measurements.files.df[row,]
+      dataset = measurement$dataset
+      configuration = paste(algorithm, dataset, sep = "_")
+      # create data frame for current algorithm-graph configuration if necessary
+      if (!(configuration %in% names(performance))) {
+        performance[[configuration]] = data.frame(matrix(ncol = length(performance.df.colnames), nrow = 0))
+        colnames(performance[[configuration]]) = performance.df.colnames
+      }
+      # create column for thread count if necessary
+      if (!measurement$thread.count %in% performance[[configuration]]$thread.count) {
+        new.row = nrow(performance[[configuration]]) + 1
+        performance[[configuration]][new.row,] = NA
+        performance[[configuration]]$thread.count[new.row] = measurement$thread.count
+      }
+      
+      measurement.data = read.csv(paste(measurements.folder, measurement$filename, sep = "/"), header = FALSE, sep = "\t")
+      if (measurement$type == "time") {
+        target.cols = paste(framework, time.cols, sep = ".")
+      } else if (measurement$type == "memory") {
+        target.cols = paste(framework, memory.cols, sep = ".")
+      } else {
+        target.cols = c()
+      }
+      performance[[configuration]][performance[[configuration]]$thread.count == measurement$thread.count, target.cols] = colMeans(measurement.data)
+    }
+  }
+}
+```
+
