@@ -5,11 +5,17 @@ date: "7/23/2021"
 output: html_document
 ---
 
-```{r}
+```{r setup, include=FALSE}
+library(stringr)
+```
+
+
+First we organize our benchmark results into data frames.
+```{r dataframes, include=FALSE}
 # abstractions
 results.path = "../benchmark_results"
 algorithms = data.frame(
-  name = c("connected components", "pagerank", "sssp"),
+  name = c("connected_components", "pagerank", "sssp"),
   iPregel = c("cc_single_broadcast_spread_32", "pagerank_single_broadcast_32", "sssp_single_broadcast_spread_32"),
   networkit = c("connected_components", "pagerank", "sssp")
 )
@@ -60,6 +66,47 @@ for (framework in frameworks) {
       performance[[configuration]][performance[[configuration]]$thread.count == measurement$thread.count, target.cols] = colMeans(measurement.data)
     }
   }
+}
+
+# sort the performance list
+performance = performance[order(names(performance))]
+
+# sort the data frames
+for (configuration in names(performance)) {
+  performance[[configuration]] = performance[[configuration]][order(performance[[configuration]]$thread.count),]
+}
+```
+Then, we can plot comparisons between iPregel and networkit for different graphs and algorithms.
+```{r plots, echo=FALSE, fig.show="hold", out.width="50%"}
+# creating a proper log axis based on values
+log.at = function(values) {
+  exp.min = floor(log10(min(values)))
+  exp.max = ceiling(log10(max(values)))
+  return(c(outer(1:9, 10^(exp.min:(exp.max-1))), 10^exp.max))
+}
+log.labels = function(log.at) ifelse(log10(log.at) %% 1 == 0, log.at, NA)
+
+# define y values to plot
+series.df = data.frame(
+  name = c("iPregel.load", "iPregel.calc", "networkit.load", "networkit.calc"),
+  color = c("dodgerblue", "black", "dodgerblue", "black"),
+  lty = c(1, 1, 2, 2),
+  pch = c(17, 19, 2, 1)
+)
+# create a plot for each configuration
+for (conf in names(performance)) {
+  df = performance[[conf]]
+  at.y = log.at(unlist(df[series.df$name]))
+  lab.y = log.labels(at.y)
+  plot(df$thread.count, type = "n", xlab = "thread count", ylab = "time in s", main = conf,
+       log = "xy", axes = FALSE, xlim = c(min(df$thread.count), max(df$thread.count)), ylim = c(min(at.y), max(at.y)))
+  axis(1, at = df$thread.count)
+  axis(2, at = at.y, labels = lab.y, las = 1)
+  for (row in 1:nrow(series.df)) {
+    series = series.df[row,]
+    lines(df$thread.count, df[[series$name]], type = "b", col = series$color, lty = series$lty, pch = series$pch)
+  }
+  legend("topright", legend = series.df$name, col = series.df$col, lty = series.df$lty, pch = series.df$pch, bg = "white")
 }
 ```
 
