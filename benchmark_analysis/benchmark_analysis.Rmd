@@ -15,13 +15,15 @@ First we organize our benchmark results into data frames.
 # abstractions
 results.path = "../benchmark_results"
 algorithms = data.frame(
-  name = c("connected_components", "pagerank", "sssp"),
+  name = c("cc", "pagerank", "sssp"),
   iPregel = c("cc_single_broadcast_spread_32", "pagerank_single_broadcast_32", "sssp_single_broadcast_spread_32"),
   networkit = c("connected_components", "pagerank", "sssp")
 )
 frameworks = colnames(algorithms)[-1]
+frameworks.colors = list(iPregel = "black", networkit = "#6fa8dc")
 time.cols = c("load", "calc", "dump")
 memory.cols = c("memory")
+datasets = c("author-citation", "higgs-activity_time", "stackoverflow", "hollywood-2011")
 
 # list with one data frame for each algorithm-graph configuration
 performance = list()
@@ -71,13 +73,17 @@ for (framework in frameworks) {
 # sort the performance list
 performance = performance[order(names(performance))]
 
-# sort the data frames
 for (configuration in names(performance)) {
+  # sort the data frames
   performance[[configuration]] = performance[[configuration]][order(performance[[configuration]]$thread.count),]
+  # remove thread counts 18 and 36
+  performance[[configuration]] = performance[[configuration]][!performance[[configuration]]$thread.count %in% c(18, 36),]
 }
 ```
-Then, we can plot comparisons between iPregel and networkit for different graphs and algorithms.
-```{r plots, echo=FALSE, fig.show="hold", out.width="50%"}
+
+Then, we can plot runtime comparisons between iPregel and networkit for different graphs and algorithms.
+
+```{r time-plots, echo=FALSE, fig.show="hold", out.width="50%"}
 # creating a proper log axis based on values
 log.at = function(values) {
   exp.min = floor(log10(min(values)))
@@ -87,11 +93,19 @@ log.at = function(values) {
 log.labels = function(log.at) ifelse(log10(log.at) %% 1 == 0, log.at, NA)
 
 # define y values to plot
+#series.df = data.frame(
+#  name = c("iPregel.load", "iPregel.calc", "iPregel.dump", "networkit.load", "networkit.calc", "networkit.dump"),
+#  label = c("iPregel load", "iPregel calc", "iPregel dump", "networkit load", "networkit calc", "networkit dump"),
+#  color = c(rep(frameworks.colors$iPregel, 3), rep(frameworks.colors$networkit, 3)),
+#  lty = c(2, 1, 3, 2, 1, 3),
+#  pch = c(2, 17, 3, 1, 19, 4)
+#)
 series.df = data.frame(
-  name = c("iPregel.load", "iPregel.calc", "networkit.load", "networkit.calc"),
-  color = c("dodgerblue", "black", "dodgerblue", "black"),
-  lty = c(1, 1, 2, 2),
-  pch = c(17, 19, 2, 1)
+  name = c("iPregel.calc", "networkit.calc"),
+  label = c("iPregel", "networkit"),
+  color = c(frameworks.colors$iPregel, frameworks.colors$networkit),
+  lty = c(1, 1),
+  pch = c(19, 19)
 )
 # create a plot for each configuration
 for (conf in names(performance)) {
@@ -99,14 +113,39 @@ for (conf in names(performance)) {
   at.y = log.at(unlist(df[series.df$name]))
   lab.y = log.labels(at.y)
   plot(df$thread.count, type = "n", xlab = "thread count", ylab = "time in s", main = conf,
-       log = "xy", axes = FALSE, xlim = c(min(df$thread.count), max(df$thread.count)), ylim = c(min(at.y), max(at.y)))
+       log = "xy", axes = FALSE, xlim = range(df$thread.count), ylim = c(range(at.y)))
   axis(1, at = df$thread.count)
   axis(2, at = at.y, labels = lab.y, las = 1)
   for (row in 1:nrow(series.df)) {
     series = series.df[row,]
     lines(df$thread.count, df[[series$name]], type = "b", col = series$color, lty = series$lty, pch = series$pch)
+    # add ideal line
+    lines(df$thread.count, df[[series$name]][1] / df$thread.count, type = "l", lty = 3)
   }
-  legend("topright", legend = series.df$name, col = series.df$col, lty = series.df$lty, pch = series.df$pch, bg = "white")
+  
+  legend("bottomleft", legend = series.df$label, col = series.df$col, lty = series.df$lty, pch = series.df$pch)
+}
+```
+We can also compare the memory usage
+
+```{r memory-plots, echo=FALSE, fig.show="hold", out.width="50%"}
+# set margins
+for (dataset in datasets) {
+  # get all data frames with the current data sets and sort by algorithm
+  configurations.df = performance[grepl(paste(dataset, collapse = "|"), names(performance))]
+  configurations.df = configurations.df[order(names(configurations.df))]
+  # create algorithm x framework matrix with memory consumption
+  memory.matrix = do.call("rbind", lapply(configurations.df, function(df) colMeans(df[, paste(frameworks, "memory", sep = "." )])))
+  colnames(memory.matrix) = frameworks
+  rownames(memory.matrix) = sort(algorithms$name)
+  # convert kb to Mb
+  memory.matrix = memory.matrix / 1024
+  
+  # create plot
+  par(mar = c(5,5,4,2) + 0.1)
+  barplot(t(memory.matrix), main="max. memory consumption in MB", sub = dataset,
+          beside = TRUE, las = 1, horiz = TRUE, xlim = range(pretty(c(0, memory.matrix))),
+          legend.text = TRUE, args.legend = list(x="bottomright"), col = unlist(frameworks.colors))
 }
 ```
 
