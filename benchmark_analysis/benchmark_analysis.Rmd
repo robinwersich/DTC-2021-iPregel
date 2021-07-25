@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(stringr)
+library(printr)
 ```
 
 
@@ -118,18 +119,40 @@ for (conf in names(performance)) {
   axis(2, at = at.y, labels = lab.y, las = 1)
   for (row in 1:nrow(series.df)) {
     series = series.df[row,]
-    lines(df$thread.count, df[[series$name]], type = "b", col = series$color, lty = series$lty, pch = series$pch)
     # add ideal line
     lines(df$thread.count, df[[series$name]][1] / df$thread.count, type = "l", lty = 3)
+    # add series line
+    lines(df$thread.count, df[[series$name]], type = "b", col = series$color, lty = series$lty, pch = series$pch)
   }
   
   legend("bottomleft", legend = series.df$label, col = series.df$col, lty = series.df$lty, pch = series.df$pch)
 }
 ```
+
+Let's compare the runtimes for loading, calculating and dumping in a table for min and max thread count:
+
+```{r time-distribution, echo=FALSE, results='asis'}
+for (time.type in c("load", "calc", "dump")) {
+  time.df = do.call("rbind", lapply(performance, function(df) {
+    df.new = data.frame(matrix(nrow = 1, ncol = 0))
+    for (thread.count in c(1, 32)) {
+      networkit.time = df[df$thread.count == thread.count, paste("networkit", time.type, sep = ".")]
+      iPregel.time = df[df$thread.count == thread.count, paste("iPregel", time.type, sep = ".")]
+      relative.diff = (iPregel.time - networkit.time) / networkit.time
+      df.new[[paste("networkit", thread.count, sep = ".")]] = round(networkit.time, 4)
+      df.new[[paste("iPregel", thread.count, sep = ".")]] = round(iPregel.time, 4)
+      #df.new[[paste("diff", thread.count, sep = ".")]] = round(relative.diff, 3)
+      df.new[[paste("diff", thread.count, sep = ".")]] = sprintf("%1.1f%%", 100*relative.diff)
+    }
+    return(df.new)
+  }))
+  print(knitr::kable(time.df, digits = 4, caption = time.type))
+}
+```
+
 We can also compare the memory usage
 
 ```{r memory-plots, echo=FALSE, fig.show="hold", out.width="50%"}
-# set margins
 for (dataset in datasets) {
   # get all data frames with the current data sets and sort by algorithm
   configurations.df = performance[grepl(paste(dataset, collapse = "|"), names(performance))]
