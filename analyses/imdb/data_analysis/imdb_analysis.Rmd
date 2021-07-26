@@ -1,0 +1,142 @@
+---
+title: "IMDb Node Importance Measures"
+output: html_notebook
+---
+
+This script aims at doing a first rudimentary analysis of node importance measure results on the IMDb actors 2011 datasets.
+This includes extracting the top 20 actors according to each measure and plotting the distribution of each measure.
+
+### 1. Load Node Importance Measure and Meta Data
+```{r}
+bc = read.csv("../results/networkit_betweenness_centrality_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(bc) <- c("ID", "BC")
+
+cc = read.csv("../results/networkit_closeness_centrality_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(cc) <- c("ID", "CC")
+
+pr = read.csv("../results/networkit_pagerank_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(pr) <- c("ID", "PR")
+
+id_mapping = read.csv("../results/hollywood-2011-ids.txt", header=FALSE)
+colnames(id_mapping) <- c("ID", "Name")
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+bc$ID <- bc$ID + 1
+cc$ID <- cc$ID + 1
+pr$ID <- pr$ID + 1
+id_mapping$ID <- id_mapping$ID + 1
+
+# find actor / actress with highest betweenness centrality
+max_bc <- bc[which.max(bc$BC),]
+max_bc_actor <- id_mapping[max_bc$ID,]
+max_bc_actor
+
+library(dplyr)
+top.vertices <- bc %>% slice_max(BC, n=20)
+top.vertices[order(top.vertices$BC, decreasing = TRUE),]
+
+id_mapping[964355,]
+id_mapping[368965,]
+id_mapping[1757679,]
+id_mapping[579600, ]
+
+id_mapping[top.vertices[order(top.vertices$BC, decreasing = TRUE),]$ID,]
+
+id_mapping[id_mapping$Name == "Hitler, Adolf",]
+
+```
+
+### 2. Find top 20 actors according to each measure
+
+#### PageRank
+
+```{r}
+library(dplyr)
+pr.top.vertices <- pr %>% slice_max(PR, n=20)
+pr.top.vertices <- pr.top.vertices[order(pr.top.vertices$PR, decreasing = TRUE),]
+
+pr.top.actors <- id_mapping[pr.top.vertices[order(pr.top.vertices$PR, decreasing = TRUE),]$ID,]
+pr.top.actors <- cbind(pr.top.actors, pr.top.vertices)
+pr.top.actors
+```
+
+
+#### Betweenness Centrality
+
+```{r}
+library(dplyr)
+bc.top.vertices <- bc %>% slice_max(BC, n=20)
+bc.top.vertices <- bc.top.vertices[order(bc.top.vertices$BC, decreasing = TRUE),]
+
+bc.top.actors <- id_mapping[bc.top.vertices[order(bc.top.vertices$BC, decreasing = TRUE),]$ID,]
+bc.top.actors <- cbind(bc.top.actors, bc.top.vertices)
+bc.top.actors
+```
+#### Closeness Centrality
+
+```{r}
+library(dplyr)
+cc.top.vertices <- cc %>% slice_max(CC, n=20)
+cc.top.vertices <- cc.top.vertices[order(cc.top.vertices$CC, decreasing = TRUE),]
+
+cc.top.actors <- id_mapping[cc.top.vertices[order(cc.top.vertices$CC, decreasing = TRUE),]$ID,]
+cc.top.actors <- cbind(cc.top.actors, cc.top.vertices)
+cc.top.actors
+```
+
+
+#### Overlaps - Actors that are important according to two or all measures
+
+```{r}
+pr.top.actors.names <- pr.top.actors$Name
+bc.top.actors.names <- bc.top.actors$Name
+cc.top.actors.names <- cc.top.actors$Name
+
+overlap.pr.bc <- intersect(pr.top.actors.names,bc.top.actors.names)
+overlap.pr.cc <- intersect(pr.top.actors.names,cc.top.actors.names)
+overlap.cc.bc <- intersect(bc.top.actors.names,cc.top.actors.names)
+
+in.all.three <- Reduce(intersect, list(pr.top.actors.names,bc.top.actors.names,cc.top.actors.names))
+```
+
+Why do measures obtain similar results? 
+-> all measures build upon connections to other vertices, if you have a lot of connections thats always good for you => what is the degree centrality of top vertices is there a correlation between degree centrality 
+- BC <-> CC <- if you are on many shortest paths, it's probable that you are close to many vertices
+- BC <-> PR <- Highest overlap, interesting
+
+### 3. Score Distributions
+
+#### PageRank -> undirected, measure of connectedness?
+```{r}
+pr.max <- max(pr$PR)
+hist(pr$PR, breaks = 200, xlim=range(0,pr.max))
+hist(pr$PR, breaks = 200, xlim=range(0,0.000001))
+hist(pr$PR, breaks = 200, xlim=range(0,0.00001))
+```
+#### PageRank
+```{r}
+bc.max <- max(bc$BC)
+hist(bc$BC, breaks = 200, xlim=range(0,bc.max))
+hist(bc$BC, breaks = 10000000, xlim=range(0,100000))
+```
+```{r}
+summary(bc$BC)
+```
+
+- BC differentiates very strongly -> 50% of vertices have a value of 0 / no shortest path goes over them, difference of values is very high - max value is 23 452 180 770.
+
+
+```{r}
+cc.max <- max(cc$CC)
+hist(cc$CC, breaks = 200, xlim=range(0,cc.max))
+hist(cc$CC, breaks = 10000000, xlim=range(0,100000))
+```
+
+How do I interpret CC value?
+0.3 
+
+
+### Difference CC and BC
+
+- see Robins Sketch -> BC is a "winner-takes-it-all" approach, so close nodes can have 0 vs. big value BC scores
+- CC disstributes more evenly - close neighbors have similar scores

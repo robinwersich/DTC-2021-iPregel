@@ -1,0 +1,195 @@
+---
+title: "DTC 2021 - Analysis Closeness Centrality vs. follower count"
+output: html_notebook
+---
+
+## Load Measure and Classical Score Data
+
+```{r}
+
+cc <- as.data.frame(read.csv("../results/networkit_closeness_centrality_higgs-activity_time_reversed.txt", sep="\t", header=FALSE))
+colnames(cc) <- c("ID", "CC")
+cc$ID <- cc$ID + 1
+
+
+f_count = as.data.frame(read.csv("../results/follower_count_higgs-social_network.txt", sep=" ", header=FALSE))
+colnames(f_count) <- c("ID", "f_count")
+f_count <- f_count[1:456623,]
+f_count.normalized <- f_count
+f_count.sum <- sum(f_count["f_count"])
+f_count.normalized["f_count"] <- apply(f_count.normalized["f_count"], 2, function(x) {x / f_count.sum})
+```
+
+## 1.Is the alternative node importance measure feasible?
+
+### a. Computationally: Run-Time Complexity, Resource consumption
+
+- extract from Benchmarking Results
+- BC calculation took ~ 47 hours for our edge-wise biggest graph -> IMDb actors 1,660,332 vertices, 171,438,479 edges. 
+- And ~ 44 hours for our vertex-wise biggest graph stackoverflow with 2,601,977 vertices and 36,233,450 edges. 
+
+That is nearly two days for comparatively small graphs and definitely not suited for frequent calculation. (Or better frameworks are needed.)
+
+### b. Semantic / Interpretation-Wise:
+
+#### Do (all) vertices receive a meaningful score? (How does this compare to the classical measure?)
+
+1. Compare Range and Number of Zero-Values.
+
+```{r}
+bc.range <- range(bc$BC)
+bc.range
+```
+
+As expected for BC very high to null values possible.
+
+2. Compare Mean / Median. 
+
+```{r}
+bc.mean <- mean(bc$BC)
+bc.median <- median(bc$BC)
+```
+
+3. Have a look at value dist. among quartiles.
+
+```{r}
+summary(bc$BC)
+```
+- At least 25% of scientists have BC of 0.
+
+#### What is the distribution? How well does the measure distinguish vertices?
+
+```{r}
+bc.max <- max(bc$BC)
+hist(bc$BC, breaks = 100, xlim=range(0,bc.max))
+hist(bc$BC, breaks = 10000, xlim=range(0,1000))
+
+```
+```{r}
+boxplot(bc$BC)
+```
+
+#### Is there a meaningful interpretation for the scores?
+- You get credit if you connect groups that are otherwise not well connected.
+
+=> Feasible Score, but differentiates / seperates quite a lot and for many scientists assigns 0.
+
+## 2. How (much) does the alternative measure differ from the classical measure? Regarding Selectivity, Vertices assigned as most important, and score per vertex (are there a lot of fluctuation and/or trends)?
+
+### a. Assignment of meaningful scores to vertices
+
+1. Compare Range and Number of Zero-Values.
+
+```{r}
+bc.range <- range(bc$BC)
+bc.zero_count <- colSums(bc == 0)
+h_index.range <- range(h_index$h.index)
+h_index.zero_count <- colSums(h_index == 0)
+vertex_count <- nrow(h_index)
+
+```
+2682 / 8729 of scientists did get a BC of 0. 1576 / 8729 ~ 18 % of vertices / scientists did get an h-index of 0. 
+
+2. Compare Mean / Median. 
+
+```{r}
+bc.mean <- mean(bc$BC)
+bc.median <- median(bc$BC)
+
+h_index.mean <- mean(h_index$h.index)
+h_index.median <- median(h_index$h.index)
+```
+
+3. Have a look at value dist. among quartiles.
+
+```{r}
+summary(bc$BC)
+summary(h_index$h.index)
+```
+Kind of comparabl
+-> 75% of scientists have a maximum h-index of 3 
+### b. Distribution of scores (Boxplot, Violinplot, Histogram)
+
+```{r}
+h_index.max <- max(h_index$h.index)
+hist(h_index$h.index, breaks = 100, xlim=range(0, h_index.max))
+
+h_index.normalized.max <- max(h_index.normalized$h.index)
+hist(h_index.normalized$h.index, breaks = 100, xlim=range(0, h_index.normalized.max))
+```
+
+```{r}
+library(ggplot2)
+
+bc.combinable <- bc
+colnames(bc.combinable) <- c("ID", "Score")
+bc.combinable$Type <- 'BC'
+h_index.combinable <- h_index.normalized[,c(1,3)]
+colnames(h_index.combinable) <- c("ID", "Score")
+h_index.combinable$Type <- 'H-Index'
+data.combined <- rbind(bc.combinable,h_index.combinable)
+data.combined$Type <- as.factor(data.combined$Type)
+# Basic violin plot
+p <- ggplot(data=data.combined, aes(x=Type, y=Score)) + 
+  geom_violin()
+p
+```
+
+
+### b. Top vertices (what are they, overlaps, characterize them further?)
+
+1. What are the top vertices?
+
+```{r}
+library(dplyr)
+top.vertices.bc <- top_n(bc, 20)
+top.vertices.bc <- top.vertices.bc[order(top.vertices.bc$BC, decreasing = TRUE),]
+```
+```{r}
+top.vertices.h_index <- top_n(h_index, 20)
+top.vertices.h_index <- top.vertices.h_index[order(top.vertices.h_index$h.index, decreasing = TRUE),]
+```
+
+
+2. What is the overlap? Is there overlap?
+```{r}
+top.vertices.combined <- cbind(top.vertices.h_index, top.vertices.bc)
+top.vertices.overlap <- intersect(top.vertices.h_index$ID, top.vertices.bc$ID)
+```
+
+```{r}
+data.combined <- cbind(cc, f_count)
+data.combined
+```
+3. How correlated are they?
+
+```{r}
+plot(top.vertices.h_index$h.index, top.vertices.cc$CC)
+```
+```{r}
+top.vertices.cor.r <- cor(top.vertices.h_index$h.index, top.vertices.bc$BC)
+top.vertices.cor.r2 <- top.vertices.cor.r ^ 2
+```
+
+
+### c. Difference per vertex (Distribution, 2D Plot plot importance against each other (smooth scatter), marginal distribution, Pearson / Spearman Correlation ?)
+
+1. Difference per vertex?
+
+2. Plot Scores against each other
+```{r}
+plot(f_count$f_count, cc$CC)
+```
+
+3a. Pearson Correlation
+```{r}
+cor.r <- cor(cc$CC, f_count$f_count)
+cor.r2 <- cor.r ^ 2
+```
+
+3b. Spearman Correlation
+
+```{r}
+spearman.cor.r <- cor(f_count$f_count, cc$CC, method="spearman")
+spearman.cor.r2 <- spearman.cor.r ^ 2
+```
