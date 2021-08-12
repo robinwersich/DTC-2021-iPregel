@@ -13,7 +13,7 @@ CHUNK_SIZE="64"
 BASE_DIR="$(dirname "$0")/.."
 
 # executable directories
-IPREGEL_DIR="$BASE_DIR/bin"
+IPREGEL_DIR="$BASE_DIR/iPregel/bin"
 NETWORKIT_DIR="$BASE_DIR/networkit"
 
 trap "exit 2" SIGINT

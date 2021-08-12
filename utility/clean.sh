@@ -9,7 +9,7 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ "$1" = "" ]; then
 fi
 
 if [ "$1" = "--bin" ] || [ "$1" = "--all" ]; then
-    rm -rf "bin"
+    make clean -C "iPregel"
 fi
 
 if [ "$1" = "--benchmarks" ] || [ "$1" = "--all" ]; then

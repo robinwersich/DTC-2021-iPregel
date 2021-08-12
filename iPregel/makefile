@@ -22,7 +22,7 @@ SUFFIX_SPREAD=_spread
 SUFFIX_SINGLE_BROADCAST=_single_broadcast
 
 SRC_DIRECTORY=src
-BENCHMARKS_DIRECTORY=benchmarks
+BENCHMARKS_DIRECTORY=executables
 BIN_DIRECTORY=bin
 COMPILATION_PREFIX="    --> \c"
 
@@ -41,9 +41,9 @@ COMMON_FILES_COMBINER_SINGLE_BROADCAST_COMMITS := $(shell ./get_commits.sh $(COM
 COMMON_FILES_COMBINER_SPREAD_AND_SINGLE_BROADCAST=$(COMMON_FILES) $(SRC_DIRECTORY)/combiner_spread_single_broadcast_preamble.h $(SRC_DIRECTORY)/combiner_spread_single_broadcast_postamble.h
 COMMON_FILES_COMBINER_SPREAD_AND_SINGLE_BROADCAST_COMMITS := $(shell ./get_commits.sh $(COMMON_FILES_COMBINER_SPREAD_AND_SINGLE_BROADCAST))
 
-CC_COMMIT := $(shell ./get_commits.sh benchmarks/cc.c)
-PR_COMMIT := $(shell ./get_commits.sh benchmarks/pagerank.c)
-SSSP_COMMIT := $(shell ./get_commits.sh benchmarks/sssp.c)
+CC_COMMIT := $(shell ./get_commits.sh $(BENCHMARKS_DIRECTORY)/cc.c)
+PR_COMMIT := $(shell ./get_commits.sh $(BENCHMARKS_DIRECTORY)/pagerank.c)
+SSSP_COMMIT := $(shell ./get_commits.sh $(BENCHMARKS_DIRECTORY)/sssp.c)
 
 ifneq ($(OS),Windows_NT)
     UNAME_S := $(shell uname -s)

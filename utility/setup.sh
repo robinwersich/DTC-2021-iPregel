@@ -4,18 +4,19 @@
 # compiles the necessary programms
 # and prepares all the analyses data
 
+# navigate to project root directory
+cd "$(dirname "$0")/.."
+
 # constants
+BASE_DIR="$(pwd)"
 IPREGEL_DIR="iPregel"
 LIGRA_DIR="ligra"
 ORIGINAL_DIR="data_original"
 PREPARED_DIR="data_prepared"
 RESULT_DIR="results"
 
-# navigate to iPregel root directory
-cd "$(dirname "$0")/.."
-
 echo "Compiling iPregel binaries..."
-make &> /dev/null
+make -C "$IPREGEL_DIR" &> /dev/null
 echo
 
 echo "----- Installing graph converter -----"
@@ -41,7 +42,7 @@ else
         make -C "$LIGRA_DIR/utils" SNAPtoAdj adjToBinary 1> /dev/null
 
         echo "Setting up SNAP to iPregel converter."
-        "$IPREGEL_DIR/utility/Snap2iPregel.sh" -c "$LIGRA_DIR/utils/SNAPtoAdj" "$LIGRA_DIR/utils/adjToBinary"
+        "$BASE_DIR/utility/Snap2iPregel.sh" -c "$LIGRA_DIR/utils/SNAPtoAdj" "$LIGRA_DIR/utils/adjToBinary"
     )
     if [ $? -ne 0 ]; then
         echo "Ligra installation failed. Exiting."
@@ -49,7 +50,7 @@ else
         exit 1
     fi
 fi
-cd "$IPREGEL_DIR"
+cd "$BASE_DIR"
 echo
 
 # PYTHON & NETWORKIT
