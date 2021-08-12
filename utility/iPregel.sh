@@ -22,7 +22,7 @@ elif [ ! -f "$2" ]; then
 else
     PROGRAM="$1"
     GRAPH_IN="$2"
-    GRAPH_OUT="${2%.txt}_result.txt"
+    GRAPH_OUT="${2%.txt}_$(basename "$PROGRAM").txt"
     shift
     shift
     "$PROGRAM" "$($BASEDIR/Snap2iPregel.sh "$GRAPH_IN")" "$GRAPH_OUT" "$@"

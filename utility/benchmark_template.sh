@@ -14,8 +14,8 @@ NUM_REPETITIONS="5"
 # change iPregel parameters if you want: SCHEDULE and CHUNK_SIZE
 
 # ----- iPregel programs -----
-# iPregel <program name> <graph path> ...<additional arguments>
+# iPregel <program name> <graph path> <...program parameters except input, output and thread count>
 
 
 # ----- networkit programs -----
-# networkit <program name> <graph path> ...<additional arguments>
+# networkit <program name> <graph path> <...program parameters except input, output and thread count>
