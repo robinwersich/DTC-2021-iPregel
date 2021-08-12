@@ -1,0 +1,182 @@
+---
+title: "Benchmark Analysis"
+author: "Robin Wersich & Thresea Hradilak"
+date: "7/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(stringr)
+library(printr)
+```
+
+
+First we organize our benchmark results into data frames.
+```{r dataframes, include=FALSE}
+# abstractions
+results.path = "../benchmark_results"
+algorithms = data.frame(
+  name = c("cc", "pagerank", "sssp"),
+  iPregel = c("cc_single_broadcast_spread_32", "pagerank_single_broadcast_32", "sssp_single_broadcast_spread_32"),
+  networkit = c("connected_components", "pagerank", "sssp")
+)
+frameworks = colnames(algorithms)[-1]
+frameworks.colors = list(iPregel = "black", networkit = "#6fa8dc")
+time.cols = c("load", "calc", "dump")
+memory.cols = c("memory")
+datasets = c("author-citation", "higgs-activity_time", "stackoverflow", "hollywood-2011")
+
+# list with one data frame for each algorithm-graph configuration
+performance = list()
+performance.df.colnames = c(
+  "thread.count", outer(frameworks, c(time.cols, memory.cols), FUN = function(a, b) paste(a, b, sep = ".")))
+
+# iterate over benchmark results and add values step-by-step
+for (framework in frameworks) {
+  for (algorithm in algorithms$name) {
+    # create data frame of relevant benchmark result files
+    measurements.folder = paste(results.path, framework, algorithms[algorithms$name == algorithm, framework], sep = "/")
+    measurements.files.paths = list.files(measurements.folder)
+    measurements.files.df = as.data.frame(na.omit(str_match(measurements.files.paths, "^([\\w-]+)_(\\d+)_(\\w+).txt$")))
+    colnames(measurements.files.df) = c("filename", "dataset", "thread.count", "type")
+    measurements.files.df$thread.count = as.numeric(measurements.files.df$thread.count)
+    
+    # iterate over files and add values to performance data frame
+    for (row in 1:nrow(measurements.files.df)) {
+      measurement = measurements.files.df[row,]
+      dataset = measurement$dataset
+      configuration = paste(algorithm, dataset, sep = "_")
+      # create data frame for current algorithm-graph configuration if necessary
+      if (!(configuration %in% names(performance))) {
+        performance[[configuration]] = data.frame(matrix(ncol = length(performance.df.colnames), nrow = 0))
+        colnames(performance[[configuration]]) = performance.df.colnames
+      }
+      # create column for thread count if necessary
+      if (!measurement$thread.count %in% performance[[configuration]]$thread.count) {
+        new.row = nrow(performance[[configuration]]) + 1
+        performance[[configuration]][new.row,] = NA
+        performance[[configuration]]$thread.count[new.row] = measurement$thread.count
+      }
+      
+      measurement.data = read.csv(paste(measurements.folder, measurement$filename, sep = "/"), header = FALSE, sep = "\t")
+      if (measurement$type == "time") {
+        target.cols = paste(framework, time.cols, sep = ".")
+      } else if (measurement$type == "memory") {
+        target.cols = paste(framework, memory.cols, sep = ".")
+      } else {
+        target.cols = c()
+      }
+      performance[[configuration]][performance[[configuration]]$thread.count == measurement$thread.count, target.cols] = colMeans(measurement.data)
+    }
+  }
+}
+
+# sort the performance list
+performance = performance[order(names(performance))]
+
+# rename to friendlier names
+datasets = c("Citation", "Twitter", "IMDb", "stackoverflow")
+names(performance) = c(
+  "cc - Citation", "cc - Twitter", "cc - IMDb", "cc - stackoverflow",
+  "pagerank - Citation", "pagerank - Twitter", "pagerank - IMDb", "pagerank - stackoverflow",
+  "sssp - Citation", "sssp - Twitter", "sssp - IMDb", "sssp - stackoverflow"
+)
+
+for (configuration in names(performance)) {
+  # sort the data frames
+  performance[[configuration]] = performance[[configuration]][order(performance[[configuration]]$thread.count),]
+  # remove thread counts 18 and 36
+  performance[[configuration]] = performance[[configuration]][!performance[[configuration]]$thread.count %in% c(18, 36),]
+}
+```
+
+Then, we can plot runtime comparisons between iPregel and networkit for different graphs and algorithms.
+
+```{r time-plots, echo=FALSE, fig.show="hold", out.width="50%"}
+# creating a proper log axis based on values
+log.at = function(values) {
+  exp.min = floor(log10(min(values)))
+  exp.max = ceiling(log10(max(values)))
+  return(c(outer(1:9, 10^(exp.min:(exp.max-1))), 10^exp.max))
+}
+log.labels = function(log.at) ifelse(log10(log.at) %% 1 == 0, log.at, NA)
+
+# define y values to plot
+#series.df = data.frame(
+#  name = c("iPregel.load", "iPregel.calc", "iPregel.dump", "networkit.load", "networkit.calc", "networkit.dump"),
+#  label = c("iPregel load", "iPregel calc", "iPregel dump", "networkit load", "networkit calc", "networkit dump"),
+#  color = c(rep(frameworks.colors$iPregel, 3), rep(frameworks.colors$networkit, 3)),
+#  lty = c(2, 1, 3, 2, 1, 3),
+#  pch = c(2, 17, 3, 1, 19, 4)
+#)
+series.df = data.frame(
+  name = c("iPregel.calc", "networkit.calc"),
+  label = c("iPregel", "networkit"),
+  color = c(frameworks.colors$iPregel, frameworks.colors$networkit),
+  lty = c(1, 1),
+  pch = c(19, 19)
+)
+# create a plot for each configuration
+for (conf in names(performance)) {
+  df = performance[[conf]]
+  at.y = log.at(unlist(df[series.df$name]))
+  lab.y = log.labels(at.y)
+  plot(df$thread.count, type = "n", xlab = "thread count", ylab = "time in s", main = conf,
+       log = "xy", axes = FALSE, xlim = range(df$thread.count), ylim = c(range(at.y)))
+  axis(1, at = df$thread.count)
+  axis(2, at = at.y, labels = lab.y, las = 1)
+  for (row in 1:nrow(series.df)) {
+    series = series.df[row,]
+    # add ideal line
+    lines(df$thread.count, df[[series$name]][1] / df$thread.count, type = "l", lty = 3)
+    # add series line
+    lines(df$thread.count, df[[series$name]], type = "b", col = series$color, lty = series$lty, pch = series$pch)
+  }
+  
+  legend("bottomleft", legend = series.df$label, col = series.df$col, lty = series.df$lty, pch = series.df$pch)
+}
+```
+
+Let's compare the runtimes for loading, calculating and dumping in a table for min and max thread count:
+
+```{r time-distribution, echo=FALSE, results='asis'}
+for (time.type in c("load", "calc", "dump")) {
+  time.df = do.call("rbind", lapply(performance, function(df) {
+    df.new = data.frame(matrix(nrow = 1, ncol = 0))
+    for (thread.count in c(1, 32)) {
+      networkit.time = df[df$thread.count == thread.count, paste("networkit", time.type, sep = ".")]
+      iPregel.time = df[df$thread.count == thread.count, paste("iPregel", time.type, sep = ".")]
+      relative.diff = (iPregel.time - networkit.time) / networkit.time
+      df.new[[paste("networkit", thread.count, sep = ".")]] = round(networkit.time, 4)
+      df.new[[paste("iPregel", thread.count, sep = ".")]] = round(iPregel.time, 4)
+      #df.new[[paste("diff", thread.count, sep = ".")]] = round(relative.diff, 3)
+      df.new[[paste("diff", thread.count, sep = ".")]] = sprintf("%1.1f%%", 100*relative.diff)
+    }
+    return(df.new)
+  }))
+  print(knitr::kable(time.df, digits = 4, caption = time.type))
+}
+```
+
+We can also compare the memory usage
+
+```{r memory-plots, echo=FALSE, fig.show="hold", out.width="50%"}
+for (dataset in datasets) {
+  # get all data frames with the current data sets and sort by algorithm
+  configurations.df = performance[grepl(paste(dataset, collapse = "|"), names(performance))]
+  configurations.df = configurations.df[order(names(configurations.df))]
+  # create algorithm x framework matrix with memory consumption
+  memory.matrix = do.call("rbind", lapply(configurations.df, function(df) colMeans(df[, paste(frameworks, "memory", sep = "." )])))
+  colnames(memory.matrix) = frameworks
+  rownames(memory.matrix) = sort(algorithms$name)
+  # convert kb to Mb
+  memory.matrix = memory.matrix / 1024
+  
+  # create plot
+  par(mar = c(5,5,4,2) + 0.1)
+  barplot(t(memory.matrix), main=dataset, xlab = "max. memory consumption in MB",
+          beside = TRUE, las = 1, horiz = TRUE, xlim = range(pretty(c(0, memory.matrix))),
+          legend.text = FALSE, args.legend = list(x="bottomright"), col = unlist(frameworks.colors))
+}
+```
+
