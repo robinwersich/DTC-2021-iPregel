@@ -6,7 +6,7 @@ cd $BASE_DIR
 
 # set these according to your needs
 THREAD_COUNTS="36"
-NUM_REPETITIONS="10"
+NUM_REPETITIONS="1"
 
 SCHEDULE=dynamic
 CHUNK_SIZE=256
