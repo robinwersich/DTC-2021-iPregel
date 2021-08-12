@@ -74,6 +74,14 @@ for (framework in frameworks) {
 # sort the performance list
 performance = performance[order(names(performance))]
 
+# rename to friendlier names
+datasets = c("Citation", "Twitter", "IMDb", "stackoverflow")
+names(performance) = c(
+  "cc - Citation", "cc - Twitter", "cc - IMDb", "cc - stackoverflow",
+  "pagerank - Citation", "pagerank - Twitter", "pagerank - IMDb", "pagerank - stackoverflow",
+  "sssp - Citation", "sssp - Twitter", "sssp - IMDb", "sssp - stackoverflow"
+)
+
 for (configuration in names(performance)) {
   # sort the data frames
   performance[[configuration]] = performance[[configuration]][order(performance[[configuration]]$thread.count),]
@@ -166,9 +174,9 @@ for (dataset in datasets) {
   
   # create plot
   par(mar = c(5,5,4,2) + 0.1)
-  barplot(t(memory.matrix), main="max. memory consumption in MB", sub = dataset,
+  barplot(t(memory.matrix), main=dataset, xlab = "max. memory consumption in MB",
           beside = TRUE, las = 1, horiz = TRUE, xlim = range(pretty(c(0, memory.matrix))),
-          legend.text = TRUE, args.legend = list(x="bottomright"), col = unlist(frameworks.colors))
+          legend.text = FALSE, args.legend = list(x="bottomright"), col = unlist(frameworks.colors))
 }
 ```
 
