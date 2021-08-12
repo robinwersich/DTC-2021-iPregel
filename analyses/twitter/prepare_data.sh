@@ -16,14 +16,14 @@ else
             
             mkdir data_original && cd data_original
             echo "Downloading..."
-            curl https://snap.stanford.edu/data/higgs-activity_time.txt.gz --output higgs-activity_time_original.txt.gz
+            curl https://snap.stanford.edu/data/higgs-activity_time.txt.gz --output higgs-activity.txt.gz
             echo "Extracting..."
-            gzip -d higgs-activity_time_original.txt.gz
+            gzip -d higgs-activity.txt.gz
 
             echo "Downloading friends / follower graph .."
-            curl https://snap.stanford.edu/data/higgs-social_network.edgelist.gz --output higgs-social_network.edgelist.gz
+            curl https://snap.stanford.edu/data/higgs-social_network.edgelist.gz --output higgs-social-network.txt.gz
             echo "Extracting..."
-            gzip -d higgs-social_network.edgelist.gz
+            gzip -d higgs-social-network.txt.gz
         )
         if [ $? -ne 0 ]; then
             echo -e "\e[31mData download failed. Aborting.\e[0m"
@@ -42,14 +42,14 @@ else
 
         cd "data_prepared"
         echo "Removing timestamps, interaction types, self-interactions and duplicates..."
-        python ../preprocess_twitter_network.py "../data_original/higgs-activity_time_original.txt" "./higgs-activity_time.txt"
+        python ../preprocess_twitter_network.py "../data_original/higgs-activity.txt" "./higgs-twitter.txt"
 
         cd "../results"
         echo "Calculating classic node importance score: Follower Count..."
-        python ../calculate_follower_count.py "../data_original/higgs-social_network.edgelist"
+        python ../calculate_follower_count.py "../data_original/higgs-social-network.txt"
 
         cd ".."
-        GRAPH_NAME="data_prepared/higgs-activity_time"
+        GRAPH_NAME="data_prepared/higgs-twitter"
         echo "Creating reversed version of graph..."
         ../../utility/reverse_edges.sh < "${GRAPH_NAME}.txt" > "${GRAPH_NAME}_reversed.txt"
         echo "Creating undirected version of graph..."

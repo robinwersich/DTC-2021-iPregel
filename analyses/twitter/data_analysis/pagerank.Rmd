@@ -7,12 +7,12 @@ output: html_notebook
 
 ```{r}
 
-pr <- as.data.frame(read.csv("../results/networkit_pagerank_higgs-activity_time.txt", sep="\t", header=FALSE))
+pr <- as.data.frame(read.csv("../results/networkit_pagerank_higgs-twitter.txt", sep="\t", header=FALSE))
 colnames(pr) <- c("ID", "PR")
 pr$ID <- pr$ID + 1
 
 
-f_count = as.data.frame(read.csv("../results/follower_count_higgs-social_network.txt", sep=" ", header=FALSE))
+f_count = as.data.frame(read.csv("../results/follower_count_higgs-social-network.txt", sep=" ", header=FALSE))
 colnames(f_count) <- c("ID", "f_count")
 f_count <- f_count[1:456623,]
 f_count.normalized <- f_count

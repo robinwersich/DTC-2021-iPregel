@@ -24,7 +24,7 @@ frameworks = colnames(algorithms)[-1]
 frameworks.colors = list(iPregel = "black", networkit = "#6fa8dc")
 time.cols = c("load", "calc", "dump")
 memory.cols = c("memory")
-datasets = c("author-citation", "higgs-activity_time", "stackoverflow", "hollywood-2011")
+datasets = c("author-citation", "higgs-twitter", "stackoverflow", "hollywood-2011")
 
 # list with one data frame for each algorithm-graph configuration
 performance = list()
