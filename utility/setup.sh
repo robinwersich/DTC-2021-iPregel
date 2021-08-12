@@ -45,7 +45,7 @@ else
         "$BASE_DIR/utility/Snap2iPregel.sh" -c "$LIGRA_DIR/utils/SNAPtoAdj" "$LIGRA_DIR/utils/adjToBinary"
     )
     if [ $? -ne 0 ]; then
-        echo "Ligra installation failed. Exiting."
+        echo -e "\e[31mLigra installation failed. Exiting.\e[0m"
         rm -rf "$LIGRA_DIR"
         exit 1
     fi
@@ -74,7 +74,7 @@ else
         pip install networkit 1> /dev/null
     )
     if [ $? -ne 0 ]; then
-        echo "Python & networkit installation failed. Exiting."
+        echo -e "\e[31mPython & networkit installation failed. Exiting.\e[0m"
         rm -rf ".venv"
         exit 1
     fi

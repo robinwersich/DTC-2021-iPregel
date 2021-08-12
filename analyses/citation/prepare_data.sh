@@ -26,7 +26,7 @@ else
             cd ".."
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Aborting."
+            echo -e "\e[31mData download failed. Aborting.\e[0m"
             rm -rf "data_original"
             exit 1
         fi
@@ -49,7 +49,7 @@ else
         cat "${GRAPH_NAME}.txt" "${GRAPH_NAME}_reversed.txt" | sort -S 50% -n | uniq > "${GRAPH_NAME}_undirected.txt"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Aborting."
+        echo -e "\e[31mData preparation failed. Aborting.\e[0m"
         rm -rf "data_prepared"
         rm -f "results/author-metadata.txt"
         exit 1

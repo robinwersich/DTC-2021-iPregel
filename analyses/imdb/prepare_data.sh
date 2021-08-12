@@ -21,7 +21,7 @@ else
             cd ".."
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Aborting."
+            echo -e "\e[31mData download failed. Aborting.\e[0m"
             rm -rf "data_original"
             exit 1
         fi
@@ -47,7 +47,8 @@ else
             mvn clean > /dev/null
             cd ".."
         else
-            echo "Graph conversion requires java and maven to be installed. Skipping conversion."
+            echo -e "\e[31mGraph conversion requires java and maven to be installed. Skipping conversion.\e[0m"
+            exit 1
         fi
 
         echo "Preparing analysis data..."
@@ -55,7 +56,7 @@ else
         python download_analysis_data.py "./results/hollywood-2011-ids.txt" "./results/academy_award_nominees.csv"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Aborting."
+        echo -e "\e[31mData preparation failed. Aborting.\e[0m"
         rm -rf "data_prepared"
         rm -rf "results/hollywood-2011-ids.txt" "results/academy_award_nominees.csv"
         rm -rf "WebGraphDecoder/target"

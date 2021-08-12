@@ -21,7 +21,7 @@ else
             gzip -d "data_original/stackoverflow-original.txt.gz"
         )
         if [ $? -ne 0 ]; then
-            echo "Data download failed. Aborting."
+            echo -e "\e[31mData download failed. Aborting.\e[0m"
             rm -rf "data_original"
             exit 1
         fi
@@ -54,7 +54,7 @@ else
         python ../calculate_interaction_count.py "../${GRAPH_NAME}_reversed.txt"
     )
     if [ $? -ne 0 ]; then
-        echo "Data preparation failed. Aborting."
+        echo -e "\e[31mData preparation failed. Aborting.\e[0m"
         rm -rf "data_prepared"
         exit 1
     fi
