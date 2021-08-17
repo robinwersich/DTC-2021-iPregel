@@ -2,7 +2,6 @@
 .vscode/
 .DS_Store
 bin
-html
 latex
 graph
 output
@@ -16,6 +15,7 @@ analyses/*/data_original
 analyses/*/data_prepared
 analyses/*/results
 benchmark_results
+benchmark_analysis/*.html
 
 .Rproj.user
 .Rhistory
