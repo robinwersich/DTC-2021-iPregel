@@ -29,11 +29,9 @@ userA userB timestamp interaction
 ```
 - As we are only interested in the occurrence of an interaction and the direction of the interaction and not interested in the type of the interaction, we drop the timestamp and interaction type information.
 
-- As we are only interested in the occurrence of one interaction, we reduce multiple interactions (e.g. retweeting and mentioning the same user) to just one interaction edge. This reduces the edge count by 96522.
+- As we are only interested in the occurrence of one interaction, we reduce multiple interactions (e.g. retweeting and mentioning the same user) to just one interaction edge.
 
-- As we want the node importance of a node to only be impacted by the interaction that other nodes have with we also erased self references. This reduces the edge count by 5353.
-
-- We then use the `Snap2iPregel` converter to convert the graph into the needed format.
+- As we want the node importance of a node to only be impacted by the interaction that other nodes have with we also erased self references.
 
 
 
@@ -44,17 +42,13 @@ userA userB timestamp interaction
 userA userB 
 ```
 
-- We use [networkit](https://networkit.github.io) to compute the InDegreeCentrality for each node which in our setup equals the number of followers a node has. 
+- We used [networkit](https://networkit.github.io) to compute the InDegreeCentrality for each node which in our setup equals the number of followers a node has. 
 
 
 
 ## Inconsistencies in SNAP provided node / edge counts and our counts
 
-### User interaction network
 - According to the official [SNAP Page for the Dataset](https://snap.stanford.edu/data/higgs-twitter.html) there are 456 626 users involved in the interactions / nodes in the graph. Our converted interaction graph however only has 456 623 nodes. When analyzing our interaction graph we found that node 1 and nodes 456 623, 456 624, 456 624, 456 626 seem to not have actually interacted with other users. This also doesn't up, because we would in this case expect 456 626 - 5 = 456 621 participating nodes.
 
 - Additionally, when suming up the interactions in networks split up in regards to interaction type, so the Retweeting, Repling and Mentioning Networks, we don't arrive at the edge count of our interaction network. 
-328132 (Retweet) + 32523 (Reply) + 150818 (Mention) = 511 473 ≠ 563068 edges in the interaction network.
-
-
-
+  328132 (Retweet) + 32523 (Reply) + 150818 (Mention) = 511 473 ≠ 563068 edges in the interaction network.
