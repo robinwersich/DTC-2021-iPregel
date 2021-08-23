@@ -56,7 +56,6 @@ endif
 default: all
 
 all: $(BIN_DIRECTORY) \
-	 all_utilities \
 	 all_cc \
 	 all_pagerank \
 	 all_sssp
@@ -66,40 +65,6 @@ all: $(BIN_DIRECTORY) \
 #################
 $(BIN_DIRECTORY): 
 	mkdir -p $@;
-
-#############
-# UTILITIES #
-#############
-all_utilities: $(BIN_DIRECTORY)/contiguouer \
-			   $(BIN_DIRECTORY)/contiguouerASCII \
-			   $(BIN_DIRECTORY)/graph_converter \
-			   $(BIN_DIRECTORY)/graph_converter_ligra \
-			   all_graph_generators
-
-$(BIN_DIRECTORY)/contiguouer: $(SRC_DIRECTORY)/graph_converters/contiguouer.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
-
-$(BIN_DIRECTORY)/contiguouerASCII: $(SRC_DIRECTORY)/graph_converters/contiguouerASCII.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
-
-$(BIN_DIRECTORY)/graph_converter: $(SRC_DIRECTORY)/graph_converters/graph_converter.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
-
-$(BIN_DIRECTORY)/graph_converter_ligra: $(SRC_DIRECTORY)/graph_converters/graph_converter_ligra.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
-
-all_graph_generators: $(BIN_DIRECTORY)/graph_generator_femtograph \
-					  $(BIN_DIRECTORY)/graph_generator_ligra \
-					  $(BIN_DIRECTORY)/graph_generator_graphchi
-
-$(BIN_DIRECTORY)/graph_generator_femtograph: $(SRC_DIRECTORY)/graph_generators/graph_generator_femtograph.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
-
-$(BIN_DIRECTORY)/graph_generator_ligra: $(SRC_DIRECTORY)/graph_generators/graph_generator_ligra.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
-
-$(BIN_DIRECTORY)/graph_generator_graphchi: $(SRC_DIRECTORY)/graph_generators/graph_generator_graphchi.cpp
-	c++ -o $@ $^ $(CFLAGS_FOR_UTILITIES)
 
 ###########
 # HASHMIN #
