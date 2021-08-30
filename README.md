@@ -1,12 +1,12 @@
 # Complex Networks 2021 - iPregel
 
 This repository is part of the iPregel project during the Complex Networks Seminar in 2021.
-It captures the [iPregel repository](https://github.com/capellil/iPregel) in the state of June 24th, 2021 in the `iPregel` directory with modifications made by us.
+It captures part of the [iPregel repository](https://github.com/capellil/iPregel) in the state of June 24th, 2021 in the `iPregel` directory with modifications made by us. We removed parts of the repository not relevant for our project and did some minor bugfixes and added some command line parameters to the three executables.
 
 ## Goal
 
 We want to to examine the performance and usability of iPregel compared to networkit, a standard graph library.
-In addition, we want to analyse 4 networks of our choice in terms of node importance measures and compare the results with classical node importance measures.
+In addition, we want to analyse 4 networks of our choice in terms of node importance measures and compare the results with classical measures of node importance.
 
 ## How to reproduce our results
 
