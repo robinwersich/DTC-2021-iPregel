@@ -1,0 +1,250 @@
+---
+title: "Network Analysis Combined"
+output: html_notebook
+---
+
+
+
+## Purpose 
+This file serves to create joined visualizations for the report.
+
+## SetUp
+```{r}
+library(ggplot2)
+library(gridExtra)
+graph.color <- "#6fa8dc"
+border.color <- "grey30"
+```
+
+## 1. Load Node Importance Measure and Meta Data for all Datasets
+
+### Citation
+```{r}
+citation.pr = read.csv("../citation/results/networkit_pagerank_author-citation.txt", sep="\t", header = FALSE)
+colnames(citation.pr) <- c("ID", "PageRank")
+
+citation.bc = read.csv("../citation/results/networkit_betweenness_centrality_author-citation_reversed.txt", sep="\t", header = FALSE)
+colnames(citation.bc) <- c("ID", "BetweennessCentrality")
+
+citation.cc = read.csv("../citation/results/networkit_closeness_centrality_author-citation_reversed.txt", sep="\t", header = FALSE)
+colnames(citation.cc) <- c("ID", "ClosenessCentrality")
+
+citation.new_measures <- list("PageRank"=citation.pr,"BetweennessCentrality"=citation.bc,"ClosenessCentrality"=citation.cc)
+
+h_index = read.csv("../citation/results/author-metadata.txt", sep="\t")
+colnames(h_index) <- c("ID", "Name", "H-Index")
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+citation.bc$ID <- citation.bc$ID + 1
+citation.cc$ID <- citation.cc$ID + 1
+citation.pr$ID <- citation.pr$ID + 1
+h_index$ID <- h_index$ID + 1
+
+```
+
+### IMDb
+
+```{r}
+imdb.pr = read.csv("../imdb/results/networkit_pagerank_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(imdb.pr) <- c("ID", "PageRank")
+
+imdb.bc = read.csv("../imdb/results/networkit_betweenness_centrality_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(imdb.bc) <- c("ID", "BetweennessCentrality")
+
+imdb.cc = read.csv("../imdb/results/networkit_closeness_centrality_hollywood-2011.txt", sep="\t", header = FALSE)
+colnames(imdb.cc) <- c("ID", "ClosenessCentrality")
+
+imdb.new_measures <- list("PageRank"=imdb.pr,"BetweennessCentrality"=imdb.bc,"ClosenessCentrality"=imdb.cc)
+
+id_mapping = read.csv("../imdb/results/hollywood-2011-ids.txt", sep=",")
+colnames(id_mapping) <- c("ID", "Name")
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+imdb.bc$ID <- imdb.bc$ID + 1
+imdb.cc$ID <- imdb.cc$ID + 1
+imdb.pr$ID <- imdb.pr$ID + 1
+
+```
+
+### StackOverflow
+
+```{r}
+stackoverflow.pr = read.csv("../stackoverflow/results/networkit_pagerank_stackoverflow.txt", sep="\t", header = FALSE)
+colnames(stackoverflow.pr) <- c("ID", "PageRank")
+
+stackoverflow.bc = read.csv("../stackoverflow/results/networkit_betweenness_centrality_stackoverflow_reversed.txt", sep="\t", header = FALSE) 
+colnames(stackoverflow.bc) <- c("ID", "BetweennessCentrality")
+#stackoverflow.bc <- stackoverflow.bc[stackoverflow.bc$BetweennessCentrality != 0, ]
+
+stackoverflow.cc = read.csv("../stackoverflow/results/networkit_closeness_centrality_stackoverflow_reversed.txt", sep="\t", header = FALSE)
+colnames(stackoverflow.cc) <- c("ID", "ClosenessCentrality")
+
+stackoverflow.new_measures <- list("PageRank"=stackoverflow.pr,"BetweennessCentrality"=stackoverflow.bc,"ClosenessCentrality"=stackoverflow.cc)
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+stackoverflow.bc$ID <- stackoverflow.bc$ID + 1
+stackoverflow.cc$ID <- stackoverflow.cc$ID + 1
+stackoverflow.pr$ID <- stackoverflow.pr$ID + 1
+
+```
+
+### Twitter
+
+```{r}
+twitter.pr = read.csv("../twitter/results/networkit_pagerank_higgs-activity_time.txt", sep="\t", header = FALSE)
+colnames(twitter.pr) <- c("ID", "PageRank")
+#min.twitter.pr <- min(twitter.pr$PageRank)
+#twitter.pr <- twitter.pr[twitter.pr$PageRank != min.twitter.pr, ]
+
+twitter.bc = read.csv("../twitter/results/networkit_betweenness_centrality_higgs-activity_time_reversed.txt", sep="\t", header = FALSE)
+colnames(twitter.bc) <- c("ID", "BetweennessCentrality")
+#min.twitter.bc <- min(twitter.bc$BetweennessCentrality)
+#twitter.bc <- twitter.bc[twitter.bc$BetweennessCentrality != min.twitter.bc, ]
+
+twitter.cc = read.csv("../twitter/results/networkit_closeness_centrality_higgs-activity_time_reversed.txt", sep="\t", header = FALSE)
+colnames(twitter.cc) <- c("ID", "ClosenessCentrality")
+#min.twitter.cc <- min(twitter.cc$ClosenessCentrality)
+#twitter.cc <- twitter.cc[twitter.cc$ClosenessCentrality != min.twitter.cc, ]
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+twitter.bc$ID <- twitter.bc$ID + 1
+twitter.cc$ID <- twitter.cc$ID + 1
+twitter.pr$ID <- twitter.pr$ID + 1
+
+twitter.new_measures <- list("PageRank"=twitter.pr,"BetweennessCentrality"=twitter.bc,"ClosenessCentrality"=twitter.cc)
+
+follower_count = read.csv("../twitter/results/follower_count_higgs-social_network.txt", sep=" ", header=FALSE)
+colnames(follower_count) <- c("ID", "Follower Count")
+
+```
+
+```{r}
+new_measures <- list("citation"=citation.new_measures, "twitter"=twitter.new_measures, "stackoverflow"=stackoverflow.new_measures, "imdb"=imdb.new_measures)
+```
+
+
+## Calculating results
+
+### Histograms including outliers
+
+```{r}
+bins <- list(PageRank=40, BetweennessCentrality=40, ClosenessCentrality=40)
+distribution.plots <- list()
+
+for (data_set in names(new_measures)) {
+  data <- new_measures[[data_set]]
+  for (measure in names(data)) {
+    measure.p <- ggplot(data[[measure]], aes_string(x=measure)) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) +   labs(y="Count")
+    #measure.p.name <- paste(data_set,measure,sep=":")
+    distribution.plots[[data_set]][[measure]] <- measure.p
+  }
+}
+```
+
+```{r create distribution plots, fig.height = 7, fig.width = 12}
+g.citation <- arrangeGrob(grobs = distribution.plots[["citation"]], left="Citation Network", ncol=3)
+g.twitter <- arrangeGrob(grobs = distribution.plots[["twitter"]], left="Twitter Network", ncol=3)
+g.stackoverflow <- arrangeGrob(grobs = distribution.plots[["stackoverflow"]], left="Stackoverflow Network", ncol=3)
+g.imdb <- arrangeGrob(grobs = distribution.plots[["imdb"]], left="IMDb Network", ncol=3)
+grid.arrange(g.citation, g.twitter, g.stackoverflow, g.imdb, nrow = 4, top ="Distribution of PageRank, Betweenness Centrality and Closeness Centrality for investigated datasets")
+```
+### Histograms excluding outliers - Interquartile Range
+
+```{r}
+outliers <- list()
+bins <- list(PageRank=40, BetweennessCentrality=40, ClosenessCentrality=40)
+
+for (data_set in names(new_measures)) {
+  data <- new_measures[[data_set]]
+  for (measure in names(data)) {
+    cur.measure.stats <- boxplot.stats(new_measures[[data_set]][[measure]][[measure]])
+    cur.measure.median <- cur.measure.stats$stats[3]
+    cur.measure.outliers <- cur.measure.stats$out
+    
+    outliers[[data_set]][[measure]] <- list()
+    outliers[[data_set]][[measure]][["total"]] <- cur.measure.outliers
+    outliers[[data_set]][[measure]][["upper"]] <- cur.measure.outliers[cur.measure.outliers > cur.measure.median]
+    outliers[[data_set]][[measure]][["lower"]] <- cur.measure.outliers[cur.measure.outliers < cur.measure.median]
+  }
+}
+```
+
+
+```{r}
+bins <- list(PageRank=40, BetweennessCentrality=40, ClosenessCentrality=40)
+iqr.distribution.plots <- list()
+
+for (data_set in names(outliers)) {
+  outlier <- new_measures[[data_set]]
+  for (measure in names(outlier)) {
+    cur.measure <- new_measures[[data_set]][[measure]]
+    cur.outliers <- outliers[[data_set]][[measure]][["total"]]
+    p <- ggplot(cur.measure[!(cur.measure[[measure]] %in%  cur.outliers),]) + aes_string(x=measure) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color)
+    p <- p + labs(x=measure, y="Count")
+   iqr.distribution.plots[[data_set]][[measure]] <- p
+  }
+}
+```
+
+
+```{r create outlier distribution plots, fig.height = 7, fig.width = 12}
+for (data_set in names(outliers)) {
+  outlier <- new_measures[[data_set]]
+  for (measure in names(outlier)) {
+    p <- ggplot() + aes_string(outliers[[data_set]][[measure]][["upper"]]) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(data_set, measure,"Interquartile Range Upper Outlier Distribution"), x=measure, y="Count")
+    print(p)
+    p <- ggplot() + aes_string(outliers[[data_set]][[measure]][["lower"]]) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(data_set, measure, "Interquartile Range Lower Outlier Distribution"), x=measure, y="Count")
+    print(p)
+  }
+}
+```
+
+```{r create iqr distribution plots, fig.height = 7, fig.width = 12}
+iqr.g.citation <- arrangeGrob(grobs = iqr.distribution.plots[["citation"]], left="Citation Network", ncol=3)
+iqr.g.twitter <- arrangeGrob(grobs = iqr.distribution.plots[["twitter"]], left="Twitter Network", ncol=3)
+iqr.g.stackoverflow <- arrangeGrob(grobs = iqr.distribution.plots[["stackoverflow"]], left="Stackoverflow Network", ncol=3)
+iqr.g.imdb <- arrangeGrob(grobs = iqr.distribution.plots[["imdb"]], left="IMDb Network", ncol=3)
+grid.arrange(iqr.g.citation, iqr.g.twitter, iqr.g.stackoverflow, iqr.g.imdb, nrow = 4, top ="Interquartile range distribution of PageRank, Betweenness Centrality and Closeness Centrality for investigated datasets")
+
+```
+
+
+### Create distribution plots for Twitter
+
+TODO: Explanation
+
+```{r twitter distribution without minimum values}
+twitter.distribution.without_minimum_value <- list()
+
+for (measure in names(new_measures[["twitter"]])) {
+  cur.measure <- new_measures[["twitter"]][[measure]]
+  cur.minimum <- min(new_measures[["twitter"]][[measure]][[measure]])
+  twitter.distribution.without_minimum_value[[measure]] <- cur.measure[cur.measure[[measure]] != cur.minimum, ]
+  p <- ggplot(twitter.distribution.without_minimum_value[[measure]], aes_string(x=measure)) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure, "distribution without minimum value"), x=measure, y="Count")
+  print(p)
+}
+```
+
+```{r twitter distribution without minimum values, interquartile range}
+twitter.outliers <- list()
+
+for (measure in names(twitter.distribution.without_minimum_value)) {
+  cur.measure.stats <- boxplot.stats(twitter.distribution.without_minimum_value[[measure]][[measure]])
+  cur.measure.median <- cur.measure.stats$stats[3]
+  cur.measure.outliers <- cur.measure.stats$out
+  
+  twitter.outliers[[measure]] <- list()
+  twitter.outliers[[measure]][["total"]] <- cur.measure.outliers
+  twitter.outliers[[measure]][["upper"]] <- cur.measure.outliers[cur.measure.outliers > cur.measure.median]
+  twitter.outliers[[measure]][["lower"]] <- cur.measure.outliers[cur.measure.outliers < cur.measure.median]
+}
+
+for (measure in names(twitter.outliers)) {
+  cur.measure <- twitter.distribution.without_minimum_value[[measure]]
+  cur.outliers <- twitter.outliers[["measure"]]
+  p <- ggplot(cur.measure[!(cur.measure[[measure]] %in%  cur.outliers),]) + aes_string(x=measure) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color)
+  p <- p + labs(title=paste(measure, "without minimum value interquartile range distribution"), x=measure, y="Count")
+ print(p)
+}
+```
+

@@ -1,0 +1,106 @@
+---
+title: "Template Network Analysis"
+output: html_notebook
+---
+
+---
+title: "cit-HepTh Node Importance Measure Analysis"
+output: html_notebook
+---
+
+## SetUp
+```{r}
+library(ggplot2)
+graph.color <- "#6fa8dc"
+border.color <- "grey30"
+```
+
+
+## 0. Dataset description
+
+Our source was a network of papers with directed edges indicating citations. In addition, SNAP provided a metadata text file for each paper, including the author. We extracted the authors for each paper from this metadata and used this information to generate a graph of authors where a directed edge from A to B was added if at least one paper authored by B was cited by at least one paper authored by A. Self references of authors were removed. In addition, we generated a metadata file with author name and h-index for each author, where the latter was calculated using the number of papers of each author and their respective citation count.
+
+## 1. Load Node Importance Measure and Meta Data
+
+```{r}
+pr = read.csv("../results/PAGERANK_PATH.txt", sep="\t", header = FALSE)
+colnames(pr) <- c("ID", "PageRank")
+
+bc = read.csv("../results/BETWEENNESS_CENTRALITY_PATH.txt", sep="\t", header = FALSE)
+colnames(bc) <- c("ID", "BetweennessCentrality")
+
+cc = read.csv("../results/CLOSENESS_CENTRALITY_PATH.txt", sep="\t", header = FALSE)
+colnames(cc) <- c("ID", "ClosenessCentrality")
+
+new_measures <- list("PageRank"=pr,"BetweennessCentrality"=bc,"ClosenessCentrality"=cc)
+
+classical_measure = read.csv("../results/CLASSICAL_MEASURE_PATH.txt", sep="\t")
+colnames(h_index) <- c("ID", "Name", "CLASSICAL MEASURE")
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+bc$ID <- bc$ID + 1
+cc$ID <- cc$ID + 1
+pr$ID <- pr$ID + 1
+classical_measure$ID <- classical_measure$ID + 1
+
+```
+
+## 2. Feasibility of PageRank, Betweenness Centrality and Closeness Centrality as Node Importance Measures
+
+To evaluate feasibility, we assess whether each node got assigned a meaningful score and if the resulting distribution of scores serves well for distinguishing nodes. We do this via visual inspection of the histograms of the resulting distributions per measure. As some measures have a huge spread of values (e.g. Betweenness Centrality) we plot a histogram with outliers, a histogram of only the interquartile range and additionally histograms of the outlier distribution and inspect all of them.
+
+### Histograms including outliers
+
+```{r}
+bins <- list(PageRank=40, BetweennessCentrality=40, ClosenessCentrality=40)
+
+for (measure in names(new_measures)) {
+  p <- ggplot(new_measures[[measure]], aes_string(x=measure)) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure, "Distribution"), y="Count")
+  print(p)
+}
+```
+
+#### Debugging occurrences
+
+```{r}
+pagerank.occr <- table(unlist(new_measures[["PageRank"]][["PageRank"]]))
+betweenness.centrality.occr <- table(unlist(new_measures[["BetweennessCentrality"]][["BetweennessCentrality"]]))
+closeness.centrality.occr <- table(unlist(new_measures[["ClosenessCentrality"]][["ClosenessCentrality"]]))
+```
+## Print Outlier Distributions
+
+```{r}
+library(ggplot2)
+outliers <- list()
+bins <- list(PR=40, BC=40, CC=40)
+
+for (measure in names(new_measures)) {
+  cur.measure.stats <- boxplot.stats(new_measures[[measure]][[measure]])
+  cur.measure.median <- cur.measure.stats$stats[3]
+  cur.measure.outliers <- cur.measure.stats$out
+  
+  outliers[[measure]] <- list()
+  outliers[[measure]][["total"]] <- cur.measure.outliers
+  outliers[[measure]][["upper"]] <- cur.measure.outliers[cur.measure.outliers > cur.measure.median]
+  outliers[[measure]][["lower"]] <- cur.measure.outliers[cur.measure.outliers < cur.measure.median]
+}
+
+for (measure in names(outliers)) {
+  p <- ggplot() + aes_string(outliers[[measure]][["upper"]]) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure,"Interquartile Range Upper Outlier Distribution"), x=measure, y="Count")
+  print(p)
+  p <- ggplot() + aes_string(outliers[[measure]][["lower"]]) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure, "Interquartile Range Lower Outlier Distribution"), x=measure, y="Count")
+  print(p)
+}
+```
+
+## Print Interquartile Range Distribution
+```{r}
+for (measure in names(outliers)) {
+  cur.measure <- new_measures[[measure]]
+  cur.outliers <- outliers[[measure]][["total"]]
+  p <- ggplot(cur.measure[!(cur.measure[[measure]] %in%  cur.outliers),]) + aes_string(x=measure) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color)
+  p <- p + labs(title=paste(measure, "Interquartile Range Distribution"), x=measure, y="Count")
+ print(p)
+}
+```
+
