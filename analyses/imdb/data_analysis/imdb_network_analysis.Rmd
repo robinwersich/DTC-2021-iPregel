@@ -13,7 +13,7 @@ border.color <- "grey30"
 
 ## 0. Dataset description
 
-Our source was a network of papers with directed edges indicating citations. In addition, SNAP provided a metadata text file for each paper, including the author. We extracted the authors for each paper from this metadata and used this information to generate a graph of authors where a directed edge from A to B was added if at least one paper authored by B was cited by at least one paper authored by A. Self references of authors were removed. In addition, we generated a metadata file with author name and h-index for each author, where the latter was calculated using the number of papers of each author and their respective citation count.
+In the IMDb actors (2011) dataset actors registered in the IMDb database are represented as nodes. Two actors are connected with an edge if they are credited in the same movie.
 
 ## 1. Load Node Importance Measure and Meta Data
 

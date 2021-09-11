@@ -13,7 +13,7 @@ border.color <- "grey30"
 
 ## 0. Dataset description
 
-Our source was a network of papers with directed edges indicating citations. In addition, SNAP provided a metadata text file for each paper, including the author. We extracted the authors for each paper from this metadata and used this information to generate a graph of authors where a directed edge from A to B was added if at least one paper authored by B was cited by at least one paper authored by A. Self references of authors were removed. In addition, we generated a metadata file with author name and h-index for each author, where the latter was calculated using the number of papers of each author and their respective citation count.
+Similar to the Twitter network, the stackoverflow network contained an edge from a user A to a user B if A answered or commented a question (or answer) of user B, labelled with a timestamp which we removed. Again resulting duplicates, as well as self-references, were removed. Unlike on Twitter, on stackoverflow not users that are interacted with (high in-degree) are important, but users that interact (high out-degree), because they are the people knowledgeable enough to answer questions. Consistently, people who can answer questions of people with great knowledge must have great knowledge themselves (similar to how people mentioned by influential people on Twitter also gain influence). For this reason, we decided to reverse the edges in the stackoverflow graph, so people with high knowledge also have a high in-degree and will thus be considered important by algorithms like PageRank.
 
 ## 1. Load Node Importance Measure and Meta Data
 
