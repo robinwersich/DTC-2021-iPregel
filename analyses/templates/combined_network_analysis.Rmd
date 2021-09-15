@@ -9,6 +9,7 @@ This file serves to create joined visualizations for the report.
 ## SetUp
 ```{r}
 library(ggplot2)
+library(grid)
 library(gridExtra)
 graph.color <- "#6fa8dc"
 border.color <- "grey30"
@@ -133,7 +134,6 @@ for (data_set in names(new_measures)) {
   data <- new_measures[[data_set]]
   for (measure in names(data)) {
     measure.p <- ggplot(data[[measure]], aes_string(x=measure)) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) +   labs(y="Count")
-    #measure.p.name <- paste(data_set,measure,sep=":")
     distribution.plots[[data_set]][[measure]] <- measure.p
   }
 }
@@ -144,7 +144,7 @@ g.citation <- arrangeGrob(grobs = distribution.plots[["citation"]], left="Citati
 g.twitter <- arrangeGrob(grobs = distribution.plots[["twitter"]], left="Twitter Network", ncol=3)
 g.stackoverflow <- arrangeGrob(grobs = distribution.plots[["stackoverflow"]], left="Stackoverflow Network", ncol=3)
 g.imdb <- arrangeGrob(grobs = distribution.plots[["imdb"]], left="IMDb Network", ncol=3)
-grid.arrange(g.citation, g.twitter, g.stackoverflow, g.imdb, nrow = 4, top ="Distribution of PageRank, Betweenness Centrality and Closeness Centrality for investigated datasets")
+grid.arrange(g.citation, g.twitter, g.stackoverflow, g.imdb, nrow = 4)
 ```
 ### Histograms excluding outliers - Interquartile Range
 
@@ -202,47 +202,7 @@ iqr.g.citation <- arrangeGrob(grobs = iqr.distribution.plots[["citation"]], left
 iqr.g.twitter <- arrangeGrob(grobs = iqr.distribution.plots[["twitter"]], left="Twitter Network", ncol=3)
 iqr.g.stackoverflow <- arrangeGrob(grobs = iqr.distribution.plots[["stackoverflow"]], left="Stackoverflow Network", ncol=3)
 iqr.g.imdb <- arrangeGrob(grobs = iqr.distribution.plots[["imdb"]], left="IMDb Network", ncol=3)
-grid.arrange(iqr.g.citation, iqr.g.twitter, iqr.g.stackoverflow, iqr.g.imdb, nrow = 4, top ="Interquartile range distribution of PageRank, Betweenness Centrality and Closeness Centrality for investigated datasets")
+grid.arrange(iqr.g.citation, iqr.g.twitter, iqr.g.stackoverflow, iqr.g.imdb, nrow = 4)
 
-```
-
-
-### Create distribution plots for Twitter
-
-TODO: Explanation
-
-```{r twitter distribution without minimum values}
-twitter.distribution.without_minimum_value <- list()
-
-for (measure in names(new_measures[["twitter"]])) {
-  cur.measure <- new_measures[["twitter"]][[measure]]
-  cur.minimum <- min(new_measures[["twitter"]][[measure]][[measure]])
-  twitter.distribution.without_minimum_value[[measure]] <- cur.measure[cur.measure[[measure]] != cur.minimum, ]
-  p <- ggplot(twitter.distribution.without_minimum_value[[measure]], aes_string(x=measure)) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure, "distribution without minimum value"), x=measure, y="Count")
-  print(p)
-}
-```
-
-```{r twitter distribution without minimum values, interquartile range}
-twitter.outliers <- list()
-
-for (measure in names(twitter.distribution.without_minimum_value)) {
-  cur.measure.stats <- boxplot.stats(twitter.distribution.without_minimum_value[[measure]][[measure]])
-  cur.measure.median <- cur.measure.stats$stats[3]
-  cur.measure.outliers <- cur.measure.stats$out
-  
-  twitter.outliers[[measure]] <- list()
-  twitter.outliers[[measure]][["total"]] <- cur.measure.outliers
-  twitter.outliers[[measure]][["upper"]] <- cur.measure.outliers[cur.measure.outliers > cur.measure.median]
-  twitter.outliers[[measure]][["lower"]] <- cur.measure.outliers[cur.measure.outliers < cur.measure.median]
-}
-
-for (measure in names(twitter.outliers)) {
-  cur.measure <- twitter.distribution.without_minimum_value[[measure]]
-  cur.outliers <- twitter.outliers[["measure"]]
-  p <- ggplot(cur.measure[!(cur.measure[[measure]] %in%  cur.outliers),]) + aes_string(x=measure) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color)
-  p <- p + labs(title=paste(measure, "without minimum value interquartile range distribution"), x=measure, y="Count")
- print(p)
-}
 ```
 
