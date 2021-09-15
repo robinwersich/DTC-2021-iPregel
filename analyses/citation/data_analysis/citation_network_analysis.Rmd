@@ -1,0 +1,162 @@
+---
+title: "cit-HepTh Node Importance Measure Analysis"
+output: html_notebook
+---
+
+## SetUp
+```{r}
+library(ggplot2)
+library(gridExtra)
+graph.color <- "#6fa8dc"
+border.color <- "grey30"
+```
+
+
+## 0. Dataset description
+
+Our source was a network of papers with directed edges indicating citations. In addition, SNAP provided a metadata text file for each paper, including the author. We extracted the authors for each paper from this metadata and used this information to generate a graph of authors where a directed edge from A to B was added if at least one paper authored by B was cited by at least one paper authored by A. Self references of authors were removed. In addition, we generated a metadata file with author name and h-index for each author, where the latter was calculated using the number of papers of each author and their respective citation count.
+
+## 1. Load Node Importance Measure and Meta Data
+
+```{r}
+pr = read.csv("../results/networkit_pagerank_author-citation.txt", sep="\t", header = FALSE)
+colnames(pr) <- c("ID", "PageRank")
+
+bc = read.csv("../results/networkit_betweenness_centrality_author-citation_reversed.txt", sep="\t", header = FALSE)
+colnames(bc) <- c("ID", "BetweennessCentrality")
+
+cc = read.csv("../results/networkit_closeness_centrality_author-citation_reversed.txt", sep="\t", header = FALSE)
+colnames(cc) <- c("ID", "ClosenessCentrality")
+
+h_index = read.csv("../results/author-metadata.txt", sep="\t")
+colnames(h_index) <- c("ID", "Name", "HIndex")
+
+# transform ids to be 1-indexed to be able to work easily with them in R
+bc$ID <- bc$ID + 1
+cc$ID <- cc$ID + 1
+pr$ID <- pr$ID + 1
+h_index$ID <- h_index$ID + 1
+
+new_measures <- list("PageRank"=pr,"BetweennessCentrality"=bc,"ClosenessCentrality"=cc)
+```
+
+## 2. Feasibility of PageRank, Betweenness Centrality and Closeness Centrality as Node Importance Measures
+
+To evaluate feasibility, we assess whether each node got assigned a meaningful score and if the resulting distribution of scores serves well for distinguishing nodes. We do this via visual inspection of the histograms of the resulting distributions per measure. As some measures have a huge spread of values (e.g. Betweenness Centrality) we plot a histogram with outliers, a histogram of only the interquartile range and additionally histograms of the outlier distribution and inspect all of them.
+
+### 2.1 Distribution including outliers
+
+```{r}
+bins <- list(PageRank=40, BetweennessCentrality=40, ClosenessCentrality=40)
+
+for (measure in names(new_measures)) {
+  p <- ggplot(new_measures[[measure]], aes_string(x=measure)) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure, "Distribution"), y="Count")
+  print(p)
+}
+```
+
+#### 2.1.1 Debugging occurrences
+
+```{r}
+pagerank.occr <- table(unlist(new_measures[["PageRank"]][["PageRank"]]))
+betweenness.centrality.occr <- table(unlist(new_measures[["BetweennessCentrality"]][["BetweennessCentrality"]]))
+closeness.centrality.occr <- table(unlist(new_measures[["ClosenessCentrality"]][["ClosenessCentrality"]]))
+```
+
+### 2.2 Distribution of outliers
+
+```{r}
+library(ggplot2)
+outliers <- list()
+bins <- list(PR=40, BC=40, CC=40)
+
+for (measure in names(new_measures)) {
+  cur.measure.stats <- boxplot.stats(new_measures[[measure]][[measure]])
+  cur.measure.median <- cur.measure.stats$stats[3]
+  cur.measure.outliers <- cur.measure.stats$out
+  
+  outliers[[measure]] <- list()
+  outliers[[measure]][["total"]] <- cur.measure.outliers
+  outliers[[measure]][["upper"]] <- cur.measure.outliers[cur.measure.outliers > cur.measure.median]
+  outliers[[measure]][["lower"]] <- cur.measure.outliers[cur.measure.outliers < cur.measure.median]
+}
+
+for (measure in names(outliers)) {
+  p <- ggplot() + aes_string(outliers[[measure]][["upper"]]) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure,"Interquartile Range Upper Outlier Distribution"), x=measure, y="Count")
+  print(p)
+  p <- ggplot() + aes_string(outliers[[measure]][["lower"]]) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color) + labs(title=paste(measure, "Interquartile Range Lower Outlier Distribution"), x=measure, y="Count")
+  print(p)
+}
+```
+
+## 2.3 Interquartile Range Distribution
+```{r}
+for (measure in names(outliers)) {
+  cur.measure <- new_measures[[measure]]
+  cur.outliers <- outliers[[measure]][["total"]]
+  p <- ggplot(cur.measure[!(cur.measure[[measure]] %in%  cur.outliers),]) + aes_string(x=measure) + geom_histogram(bins=bins[[measure]], fill=graph.color, color=border.color)
+  p <- p + labs(title=paste(measure, "Interquartile Range Distribution"), x=measure, y="Count")
+ print(p)
+}
+```
+
+## 3. Relationship between the obtained classical node importance measure and the newly calculated node importance measures
+
+### 3.1 Distribution of the classical node importance measure
+```{r}
+p <- ggplot(h_index, aes_string(x="HIndex")) + geom_histogram(bins=40, fill=graph.color, color=border.color) + labs(title="H-Index Distribution", y="Count")
+print(p)
+```
+```{r}
+classical.measure.stats <- boxplot.stats(h_index$HIndex)
+classical.measure.median <- classical.measure.stats$stats[3]
+classical.measure.outliers <- classical.measure.stats$out
+
+outliers.classical.measure <- list()
+outliers.classical.measure[["total"]] <- classical.measure.outliers
+outliers.classical.measure[["upper"]] <- classical.measure.outliers[classical.measure.outliers > classical.measure.median]
+outliers.classical.measure[["lower"]] <- classical.measure.outliers[classical.measure.outliers < classical.measure.median]
+ 
+p <- ggplot(h_index[!(h_index[["HIndex"]] %in% outliers.classical.measure[["total"]]),]) + aes_string(x="HIndex") + geom_histogram(bins=40, fill=graph.color, color=border.color)
+  p <- p + labs(title="H-Index Interquartile Range Distribution", x="H-Index", y="Count")
+ print(p)
+```
+### 3.2 Relationship of new network-based measures with classical node importance measure
+```{r relationship between h-index and new measures, fig.height = 2, fig.width = 12}
+
+plots <- list()
+for (measure in names(new_measures)) {
+  data.combined <- cbind(new_measures[[measure]], h_index)
+  data.combined <- data.combined[2:5] #drop duplicate ID column
+  p <- ggplot(data.combined) + aes_string(x=measure, y="HIndex") + geom_point(alpha = 0.65, color=graph.color) + labs(title= paste(measure, "vs. H-Index"), x=measure, y="H-Index")
+  plots[[measure]] <- p
+}
+
+grid.arrange(grobs = plots, ncol=3)
+
+```
+
+3a. Pearson Correlation
+```{r}
+pearson.correlation <- list()
+for (measure in names(new_measures)){
+  cur.cor.r <- cor(new_measures[[measure]][[measure]], h_index$HIndex)
+  cur.cor.r2 <- cur.cor.r ^ 2
+  pearson.correlation[[measure]][["r"]] <- cur.cor.r
+  pearson.correlation[[measure]][["r2"]] <- cur.cor.r2
+}
+
+```
+
+3b. Spearman Correlation
+
+```{r}
+spearman.correlation <- list()
+for (measure in names(new_measures)){
+  cur.s.cor.r <- cor(new_measures[[measure]][[measure]], h_index$HIndex, method="spearman")
+  cur.s.cor.r2 <- cur.s.cor.r ^ 2
+  spearman.correlation[[measure]][["r"]] <- cur.s.cor.r
+  spearman.correlation[[measure]][["r2"]] <- cur.s.cor.r2
+}
+```
+
