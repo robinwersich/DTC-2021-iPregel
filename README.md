@@ -6,7 +6,7 @@ It contains part of the [iPregel repository](https://github.com/capellil/iPregel
 
 ## Goals of the project
 
-1. Examine the performance and programmability of [iPregel](https://github.com/capellil/iPregel) as a shared-memory vertex-centric programming framework, compared to [NetworKit] (https://github.com/networkit/networkit) a standard graph processing library. To evaluate the performance, we compared run-time, memory usage and impact of parallelization for Single Source Shortest Path, PageRank and Connected Components algorithms between iPregel and NetworKit.
+1. Examine the performance and programmability of [iPregel](https://github.com/capellil/iPregel) as a shared-memory vertex-centric programming framework, compared to [NetworKit](https://github.com/networkit/networkit) a standard graph processing library. To evaluate the performance, we compared run-time, memory usage and impact of parallelization for Single Source Shortest Path, PageRank and Connected Components algorithms between iPregel and NetworKit.
 2. Analyse the feasibility of network-based node importance algorithms for ranking nodes in social networks. For this we analysed the feasibility of PageRank, Betweenness Centrality, and Closeness Centrality regarding their fitness as general importance measures and the relationship between classical node importance measures and the newly proposed measures on four real-world networks such as a citation network and a twitter interaction network.
 
 
